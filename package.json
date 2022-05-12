@@ -1,0 +1,15 @@
+{
+  "name": "vp-blob",
+  "version": "1.0.0",
+  "description": "personal blob",
+  "main": "index.js",
+  "author": "cqc <tuomodaji0726@163.com>",
+  "license": "MIT",
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "devDependencies": {
+    "vuepress": "^2.0.0-beta.43",
+  }
+}
