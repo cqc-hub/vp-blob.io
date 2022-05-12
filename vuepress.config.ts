@@ -5,6 +5,9 @@ import { defaultTheme } from 'vuepress';
 const path = require('path');
 const basePath = path.resolve(__dirname);
 const navbar = require(basePath + '/config/navbar');
+const sidebar = require(basePath + '/config/sidebar');
+
+console.log(JSON.stringify(sidebar));
 
 export default defineUserConfig({
   lang: 'zh-CN',
@@ -40,10 +43,14 @@ export default defineUserConfig({
 
   // markdown
   markdown: {},
+  alias: {
+    '@': path.resolve(__dirname, './components'),
+  },
 
   theme: defaultTheme({
     logo: '/image/shaox_circle_绿色能量@2x.png',
     navbar,
     sidebarDepth: 2, // 侧边栏显示2级
+    sidebar
   }),
 });
