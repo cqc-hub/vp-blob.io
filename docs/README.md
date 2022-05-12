@@ -1,14 +1,23 @@
 ---
-lang: zh-CN
-title: 页面的标题
-description: 页面的描述
+home: true
+heroImage: /image/shaox_circle_绿色能量@2x.png
+actionText: 快速上手 →
+actionLink: /
+features:
+  - title: 简洁至上
+    details: 以 Markdown 为中心的项目结构，以最少的配置帮助你专注于写作。
+  - title: Vue驱动
+    details: 享受 Vue + webpack 的开发体验，在 Markdown 中使用 Vue 组件，同时可以使用 Vue 来开发自定义主题。
+  - title: 高性能
+    details: VuePress 为每个页面预渲染生成静态的 HTML，同时在页面被加载的时候，将作为 SPA 运行。
+footer: MIT Licensed | Copyright © 2018-present Evan You
 ---
 
 # 你好，世界！
 
 这题 23333
 
-![](https://gimg3.baidu.com/search/src=http%3A%2F%2Fpics6.baidu.com%2Ffeed%2Fae51f3deb48f8c543565a4756bea60ffe1fe7f07.jpeg%3Ftoken%3D74219a51f9a18499b91c2a877e82dccf&refer=http%3A%2F%2Fwww.baidu.com&app=2021&size=f360,240&n=0&g=0n&q=75&fmt=auto?sec=1652202000&t=a92a8b991a584b65bbad87481a7947f5)
+![](/image/shaox_circle_绿色能量@2x.png)
 
 ## We can hide anything, even code!
 
