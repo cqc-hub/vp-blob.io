@@ -2,12 +2,15 @@ import { viteBundler } from '@vuepress/bundler-vite';
 import { defineUserConfig } from '@vuepress/cli';
 import { defaultTheme } from 'vuepress';
 
-const path = require('path');
+const { path } = require('@vuepress/utils');
+const {
+  registerComponentsPlugin,
+} = require('@vuepress/plugin-register-components');
+const { docsearchPlugin } = require('@vuepress/plugin-docsearch')
+
 const basePath = path.resolve(__dirname);
 const navbar = require(basePath + '/config/navbar');
 const sidebar = require(basePath + '/config/sidebar');
-
-console.log(JSON.stringify(sidebar));
 
 export default defineUserConfig({
   lang: 'zh-CN',
@@ -39,18 +42,35 @@ export default defineUserConfig({
   open: false,
 
   // build
-  dest: path.resolve(__dirname, 'distc'), // build outDir
+  dest: path.resolve(__dirname, 'dist'), // build outDir
 
   // markdown
   markdown: {},
-  alias: {
-    '@': path.resolve(__dirname, './components'),
-  },
+  // alias: {
+  //   '@': path.resolve(__dirname, './components'),
+  // },
+
+  plugins: [
+    // https://v2.vuepress.vuejs.org/zh/reference/plugin/docsearch.html#%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95
+    // docsearchPlugin({}),
+
+    // https://v2.vuepress.vuejs.org/reference/plugin/register-components.html#usage
+    registerComponentsPlugin({
+      componentsDir: path.resolve(__dirname, './components'),
+      // components: {
+      //   FooBar: path.resolve(__dirname, './components/FooBar.vue'),
+      //   clientAppEnhanceFiles: path.resolve(
+      //     __dirname,
+      //     './config/clientAppEnhance.ts'
+      //   ),
+      // },
+    }),
+  ],
 
   theme: defaultTheme({
     logo: '/image/shaox_circle_绿色能量@2x.png',
     navbar,
     sidebarDepth: 2, // 侧边栏显示2级
-    sidebar
+    sidebar,
   }),
 });
