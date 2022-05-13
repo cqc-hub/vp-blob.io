@@ -1,0 +1,1 @@
+const e={key:"v-08bf7b6d",path:"/components/pages/Slider.html",title:"",lang:"zh-CN",frontmatter:{},excerpt:"",headers:[],git:{updatedTime:165236226e4,contributors:[{name:"cqc",email:"tuomodaji0726@163.com",commits:1}]},filePathRelative:"components/pages/Slider.md"};export{e as data};
