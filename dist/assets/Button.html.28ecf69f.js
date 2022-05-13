@@ -1,0 +1,1 @@
+import{_ as o,r as t,o as a,a as n,b as r,F as s,d as c}from"./app.eb1c14e9.js";const _={},l=c("p",null,"asdsf",-1);function m(d,f){const e=t("FooBar");return a(),n(s,null,[r(e),l],64)}var p=o(_,[["render",m],["__file","Button.html.vue"]]);export{p as default};

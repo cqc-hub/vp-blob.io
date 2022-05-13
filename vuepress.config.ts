@@ -42,7 +42,7 @@ export default defineUserConfig({
   open: false,
 
   // build
-  dest: path.resolve(__dirname, 'dist'), // build outDir
+  dest: path.resolve(__dirname, 'dist'), // build outDir  `${sourceDir}/.vuepress/dist`
 
   // markdown
   markdown: {},
