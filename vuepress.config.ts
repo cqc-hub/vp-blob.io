@@ -6,11 +6,14 @@ const { path } = require('@vuepress/utils');
 const {
   registerComponentsPlugin,
 } = require('@vuepress/plugin-register-components');
-const { docsearchPlugin } = require('@vuepress/plugin-docsearch')
+const { docsearchPlugin } = require('@vuepress/plugin-docsearch');
 
 const basePath = path.resolve(__dirname);
 const navbar = require(basePath + '/config/navbar');
 const sidebar = require(basePath + '/config/sidebar');
+
+console.log(`${basePath}/config/clientAppEnhance`, '----------');
+
 
 export default defineUserConfig({
   lang: 'zh-CN',
@@ -34,15 +37,15 @@ export default defineUserConfig({
     vuePluginOptions: {},
   }),
 
-  base: '/vp-blob.io/', // 如果你的网站部署在非根路径下，即 base 不是 "/" ，你需要把 base 添加到 Public 文件的绝对路径前。
+  base: '/vp-blob.io/',
   public: path.resolve('static'), // static source, 它们会被复制到最终生成的网站的根目录下。
 
   // devServer
-  port: 3366,
+  port: 8888,
   open: false,
 
   // build
-  dest: path.resolve(__dirname, 'dist'), // build outDir  `${sourceDir}/.vuepress/dist`
+  dest: path.resolve(__dirname, 'dist'), // build outDir
 
   // markdown
   markdown: {},
@@ -52,7 +55,11 @@ export default defineUserConfig({
 
   plugins: [
     // https://v2.vuepress.vuejs.org/zh/reference/plugin/docsearch.html#%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95
-    // docsearchPlugin({}),
+    docsearchPlugin({
+      apiKey: '',
+      appId: '',
+      indexName: '',
+    }),
 
     // https://v2.vuepress.vuejs.org/reference/plugin/register-components.html#usage
     registerComponentsPlugin({
@@ -73,4 +80,6 @@ export default defineUserConfig({
     sidebarDepth: 2, // 侧边栏显示2级
     sidebar,
   }),
+
+  clientAppEnhanceFiles: [`${basePath}/config/clientAppEnhance.ts`]
 });
