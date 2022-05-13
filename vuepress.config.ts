@@ -34,7 +34,7 @@ export default defineUserConfig({
     vuePluginOptions: {},
   }),
 
-  base: '/', // 如果你的网站部署在非根路径下，即 base 不是 "/" ，你需要把 base 添加到 Public 文件的绝对路径前。
+  base: '/vp-blob.io/', // 如果你的网站部署在非根路径下，即 base 不是 "/" ，你需要把 base 添加到 Public 文件的绝对路径前。
   public: path.resolve('static'), // static source, 它们会被复制到最终生成的网站的根目录下。
 
   // devServer
