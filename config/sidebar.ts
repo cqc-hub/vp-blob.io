@@ -44,7 +44,12 @@ module.exports = {
         {
           text: '文档',
           link: '/documents/'
-        }
+        },
+
+        {
+          text: '社区',
+          link: '/documents/community'
+        },
       ],
     },
   ],
