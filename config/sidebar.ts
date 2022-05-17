@@ -1,32 +1,51 @@
-module.exports = [
-  {
-    text: '通用',
-    collapsible: true,
-    children: [
-      {
-        text: 'Button 按钮',
-        link: '/components/pages/Button',
-      },
-    ],
-  },
-  {
-    text: '数据录入',
-    collapsible: true,
-    children: [
-      {
-        text: 'Slider 滑动组件',
-        link: '/components/pages/Slider',
-      },
-    ],
-  },
-  {
-    text: '数字输入框',
-    collapsible: true,
-    children: [
-      {
-        text: 'InputNumber 数字输入框',
-        link: '/components/pages/InputNumber',
-      },
-    ],
-  },
-];
+module.exports = {
+  '/components/': [
+    {
+      text: '通用',
+      collapsible: true,
+      children: [
+        {
+          text: 'Button 按钮',
+          link: '/components/pages/Button',
+        },
+      ],
+    },
+    {
+      text: '数据录入',
+      collapsible: true,
+      children: [
+        {
+          text: 'Slider 滑动组件',
+          link: '/components/pages/Slider',
+        },
+      ],
+    },
+    {
+      text: '数字输入框',
+      collapsible: true,
+      children: [
+        {
+          text: 'InputNumber 数字输入框',
+          link: '/components/pages/InputNumber',
+        },
+      ],
+    },
+  ],
+
+  '/documents/': [
+    {
+      text: 'introduction',
+      children: [
+        {
+          text: '分享',
+          link: '/documents/introduction',
+        },
+
+        {
+          text: '文档',
+          link: '/documents/'
+        }
+      ],
+    },
+  ],
+};

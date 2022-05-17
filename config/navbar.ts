@@ -9,12 +9,12 @@ const navBar: NavbarConfig = [
     text: '文档',
     children: [
       {
-        text: '介绍',
-        link: '/document/introduction/',
+        text: '分享',
+        link: '/documents/introduction',
       },
       {
         text: '注意事项',
-        link: '/document/tips/',
+        link: '/documents/tips/',
       },
     ],
   },

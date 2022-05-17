@@ -7,6 +7,7 @@ const {
   registerComponentsPlugin,
 } = require('@vuepress/plugin-register-components');
 const { docsearchPlugin } = require('@vuepress/plugin-docsearch');
+const { gitPlugin } = require('@vuepress/plugin-git')
 
 const basePath = path.resolve(__dirname);
 const navbar = require(basePath + '/config/navbar');
@@ -14,10 +15,9 @@ const sidebar = require(basePath + '/config/sidebar');
 
 console.log(`${basePath}/config/clientAppEnhance`, '----------');
 
-
 export default defineUserConfig({
   lang: 'zh-CN',
-  title: '你好， vp！',
+  title: '你好， 炒青菜！',
   description: 'hello VuePress',
   head: [
     [
@@ -54,6 +54,13 @@ export default defineUserConfig({
   // },
 
   plugins: [
+    // ['vuepress-plugin-demoblock-plus'],
+    gitPlugin({
+      createdTime: true,
+      updatedTime: true,
+      contributors: false,
+    }),
+
     // https://v2.vuepress.vuejs.org/zh/reference/plugin/docsearch.html#%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95
     docsearchPlugin({
       apiKey: '',
@@ -79,7 +86,11 @@ export default defineUserConfig({
     navbar,
     sidebarDepth: 2, // 侧边栏显示2级
     sidebar,
+
+    nprogress: true,
+    git: true,
+    externalLinkIcon: true,
   }),
 
-  clientAppEnhanceFiles: [`${basePath}/config/clientAppEnhance.ts`]
+  clientAppEnhanceFiles: [`${basePath}/config/clientAppEnhance.ts`],
 });
