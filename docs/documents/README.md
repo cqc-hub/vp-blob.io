@@ -1,1 +1,5 @@
+---
+navbar: false
+---
+
 <Document />
