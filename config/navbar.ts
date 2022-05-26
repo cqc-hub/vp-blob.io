@@ -13,8 +13,8 @@ const navBar: NavbarConfig = [
         link: '/documents/introduction',
       },
       {
-        text: '注意事项',
-        link: '/documents/tips/',
+        text: 'TypeScript',
+        link: '/typescript/',
       },
     ],
   },

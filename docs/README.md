@@ -1,14 +1,14 @@
 ---
 home: true
-pageClass: home-page
 heroImage: /image/shaox_circle_绿色能量@2x.png
-heroText: 2325
-tagline: description
+heroText: VuePress blob
+tagline: 生活不易，川子叹气
 
 actions:
   - text: 快速上手
     link: /components/pages/Button
     type: primary
+
   - text: 项目简介
     link: /guide/
     type: secondary
@@ -26,41 +26,21 @@ footer: MIT Licensed | Copyright © 2018-present Evan You
 
 # 你好，世界！
 
-这题 测试修改
-
-![](/image/shaox_circle_绿色能量@2x.png)
-
 ## We can hide anything, even code!
-
-<details>
-
-  <summary>CLICK ME</summary>
-
-  <p>
-
-```mermaid
-graph TD;
-    A-->B;
-    A-->C;
-    B-->D;
-    C-->D;
-```
 
 | First Header | Second Header |
 | ------------ | ------------- |
 | Content Cell | Content Cell  |
 | Content Cell | Content Cell  |
 
-  </p>
-  
-</details>
-
 ## 表格
 
-| Command    | Description                                    |
-| ---------- | ---------------------------------------------- |
-| git status | List all new or modified files                 |
-| git diff   | Show file differences that haven't been staged |
+[233](/documents/introduction)
+
+| Command    | Description                                                                         |
+| ---------- | ----------------------------------------------------------------------------------- |
+| git status | List all new or modified <RouterLink to="/documents/introduction">首页</RouterLink> |
+| git diff   | Show file differences that haven't been staged                                      |
 
 ## 代码行高亮
 

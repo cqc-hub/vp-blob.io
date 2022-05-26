@@ -13,7 +13,6 @@ const basePath = path.resolve(__dirname);
 const navbar = require(basePath + '/config/navbar');
 const sidebar = require(basePath + '/config/sidebar');
 
-console.log(`${basePath}/config/clientAppEnhance`, '----------');
 
 export default defineUserConfig({
   lang: 'zh-CN',
@@ -49,9 +48,9 @@ export default defineUserConfig({
 
   // markdown
   markdown: {},
-  // alias: {
-  //   '@': path.resolve(__dirname, './components'),
-  // },
+  alias: {
+    '@': path.resolve(__dirname, './'),
+  },
 
   plugins: [
     // ['vuepress-plugin-demoblock-plus'],
@@ -90,6 +89,11 @@ export default defineUserConfig({
     nprogress: true,
     git: true,
     externalLinkIcon: true,
+    editLink: true,
+    repo: 'https://github.com/cqc-hub/vp-blob.io',
+    docsDir: '/docs',
+    docsBranch: 'master',
+    editLinkPattern: ':repo/tree/:branch/:path',
   }),
 
   clientAppEnhanceFiles: [`${basePath}/config/clientAppEnhance.ts`],

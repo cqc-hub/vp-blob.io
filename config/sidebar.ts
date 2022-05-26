@@ -1,4 +1,21 @@
-module.exports = {
+import { SidebarConfig } from 'vuepress-vite';
+const path = require('path');
+const fs = require('fs');
+
+const readFileSync = function (path2): string[] {
+  const bPath = '../docs/';
+  const filePath = `${bPath + path2}`;
+
+  return fs
+    .readdirSync(path.resolve(__dirname, filePath))
+    .filter(pathName => pathName !== 'README.md')
+    .map((p) => ({
+      text: p.replace('.md', ''),
+      link: '/' + path2 + '/' + p
+    }));
+};
+
+const sliderBar: SidebarConfig = {
   '/components/': [
     {
       text: '通用',
@@ -43,14 +60,31 @@ module.exports = {
 
         {
           text: '文档',
-          link: '/documents/'
+          link: '/documents/',
         },
 
         {
           text: '社区',
-          link: '/documents/community'
+          link: '/documents/community',
         },
       ],
     },
   ],
+
+  // '/typescript/': [
+  //   {
+  //     text: '环境配置',
+  //     link: '/typescript/typescriptEnvironment',
+  //   },
+  // ],
+
+  '/typescript/': [
+    {
+      text: 'TypeScript',
+      children: readFileSync('typescript'),
+    },
+  ],
 };
+console.log(readFileSync('typescript'));
+
+module.exports = sliderBar;
