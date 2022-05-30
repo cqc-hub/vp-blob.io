@@ -13,8 +13,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, defineProps, withDefaults, watchEffect } from 'vue';
-import '../utils'
+import { ref, withDefaults, watchEffect } from 'vue';
+
 interface INav {
   title: string;
   link: string;
@@ -65,8 +65,9 @@ const itemClick = (item: INav) => {
 </script>
 
 <style lang="scss" scoped>
+
 nav {
-  background-color: var(--c-bg-navbar);;
+  background-color: var(--c-bg-navbar);
   padding: 20px;
   width: 80px;
   display: flex;
@@ -116,7 +117,7 @@ nav ul a {
 }
 
 .icon {
-  background-color: var(--c-bg-navbar);;
+  background-color: var(--c-bg-navbar);
   border: 0;
   cursor: pointer;
   padding: 0;

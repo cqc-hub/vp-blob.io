@@ -6,13 +6,12 @@ const { path } = require('@vuepress/utils');
 const {
   registerComponentsPlugin,
 } = require('@vuepress/plugin-register-components');
-const { docsearchPlugin } = require('@vuepress/plugin-docsearch');
-const { gitPlugin } = require('@vuepress/plugin-git')
+// const { docsearchPlugin } = require('@vuepress/plugin-docsearch');
+// const { gitPlugin } = require('@vuepress/plugin-git');
 
 const basePath = path.resolve(__dirname);
 const navbar = require(basePath + '/config/navbar');
 const sidebar = require(basePath + '/config/sidebar');
-
 
 export default defineUserConfig({
   // lang: 'zh-CN',
@@ -32,12 +31,18 @@ export default defineUserConfig({
     // https://v2.vuepress.vuejs.org/zh/reference/bundler/vite.html#%E9%85%8D%E7%BD%AE%E9%A1%B9
     viteOptions: {
       // dist: path.resolve(__dirname, 'src')
+      build: {
+        chunkSizeWarningLimit: 1500,
+        brotliSize: false, // 不统计
+        target: 'esnext', 
+        minify: 'esbuild', // 混淆器，terser构建后文件体积更小
+      },
     },
     vuePluginOptions: {},
   }),
 
   base: '/vp-blob.io/',
-  public: path.resolve('static'), // static source, 它们会被复制到最终生成的网站的根目录下。
+  public: path.resolve('static'), // static source
 
   // devServer
   port: 8888,
@@ -47,15 +52,16 @@ export default defineUserConfig({
   dest: path.resolve(__dirname, 'dist'), // build outDir
 
   // markdown
-  markdown: {},
+  markdown: {
+  },
 
   plugins: [
     // ['vuepress-plugin-demoblock-plus'],
-    gitPlugin({
-      createdTime: true,
-      updatedTime: true,
-      contributors: false,
-    }),
+    // gitPlugin({
+    //   createdTime: true,
+    //   updatedTime: true,
+    //   contributors: false,
+    // }),
 
     // https://v2.vuepress.vuejs.org/zh/reference/plugin/docsearch.html#%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95
     // docsearchPlugin({

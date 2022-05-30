@@ -6,7 +6,6 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-const s: string = 'cqc';
 const navs = ref([
   {
     title: 'Home',
