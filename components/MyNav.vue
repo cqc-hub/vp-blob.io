@@ -65,8 +65,6 @@ const itemClick = (item: INav) => {
 </script>
 
 <style lang="scss" scoped>
-@import url('https://fonts.googleapis.com/css?family=Muli&display=swap');
-
 nav {
   background-color: var(--c-bg-navbar);;
   padding: 20px;
