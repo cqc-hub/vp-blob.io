@@ -1,5 +1,17 @@
 // https://v2.vuepress.vuejs.org/zh/reference/default-theme/styles.html#style-%E6%96%87%E4%BB%B6
 
-.home-page {
-    // background-color: #94E80B;
+.my-note {
+    .page {
+        .theme-default-content {
+            padding: 0;
+            margin: 0;
+            max-width: none;
+        }
+    }
+
+    .page-meta {
+        padding: 0;
+        margin: 0;
+        padding-left: 1rem;
+    }
 }

@@ -1,6 +1,3 @@
 import getChildren from './sidebarUtil';
 
-
-export {
-  getChildren
-}
+export { getChildren };

@@ -2,6 +2,11 @@ import type { NavbarConfig } from '@vuepress/theme-default'
 
 const navBar: NavbarConfig = [
   {
+    text: '个人记录',
+    link: '/note/'
+  },
+
+  {
     text: '组件',
     link: '/components/',
   },
@@ -16,6 +21,10 @@ const navBar: NavbarConfig = [
         text: 'TypeScript',
         link: '/typescript/',
       },
+      {
+        text: '微信小程序',
+        link: '/wxProgram/'
+      }
     ],
   },
   {

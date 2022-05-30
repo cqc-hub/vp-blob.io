@@ -2,6 +2,7 @@ import { SidebarConfig } from 'vuepress-vite';
 const path = require('path');
 const fs = require('fs');
 
+// 固定取 ../docs/ 目录下
 const readFileSync = function (path2): string[] {
   const bPath = '../docs/';
   const filePath = `${bPath + path2}`;
@@ -71,20 +72,19 @@ const sliderBar: SidebarConfig = {
     },
   ],
 
-  // '/typescript/': [
-  //   {
-  //     text: '环境配置',
-  //     link: '/typescript/typescriptEnvironment',
-  //   },
-  // ],
-
   '/typescript/': [
     {
       text: 'TypeScript',
       children: readFileSync('typescript'),
     },
   ],
+
+  '/wxProgram/': [
+    {
+      text: 'WEIXIN',
+      children: readFileSync('wxProgram'),
+    }
+  ]
 };
-console.log(readFileSync('typescript'));
 
 module.exports = sliderBar;
