@@ -79,12 +79,12 @@ const sliderBar: SidebarConfig = {
     },
   ],
 
-  // '/wxProgram/': [
-  //   {
-  //     text: 'WEIXIN',
-  //     children: readFileSync('wxProgram'),
-  //   }
-  // ]
+  '/wxProgram/': [
+    {
+      text: 'WEIXIN',
+      children: readFileSync('wxProgram'),
+    }
+  ]
 };
 
 module.exports = sliderBar;
