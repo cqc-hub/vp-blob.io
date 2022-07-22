@@ -18,8 +18,7 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script lang="ts" setup>
 interface DataItem {
   title: string;
   description?: string;
@@ -58,16 +57,37 @@ const data: DataItem[] = [
   // },
 ];
 
-export default defineComponent({
-  setup() {
-    return {
-      data,
-    };
-  },
-});
+
+
+
+class Polygon1 {
+  sayHi() {
+    console.log('cqc');
+
+  }
+}
+
+class Polygon extends Polygon1 {
+  height: number;
+  width: number;
+
+  constructor(height, width) {
+    super();
+    this.height = height;
+    this.width = width;
+  }
+}
+
+// class Square extends Polygon {
+//   constructor() {
+
+//   }
+// }
+
+
+
 </script>
 
 <style lang="scss" scoped>
-.document-introduction {
-}
+.document-introduction {}
 </style>

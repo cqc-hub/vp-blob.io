@@ -2,7 +2,7 @@
 home: true
 heroImage: /image/shaox_circle_绿色能量@2x.png
 heroText: VuePress blob
-tagline: 生活不易，川子叹气
+tagline: 生活不易，且行且过
 
 actions:
   - text: 快速上手
@@ -35,7 +35,7 @@ footer: MIT Licensed | Copyright © 2018-present Evan You
 
 ## 表格
 
-[233](/documents/introduction)
+[233](/vp-blob.io/documents/introduction)
 
 | Command    | Description                                                                         |
 | ---------- | ----------------------------------------------------------------------------------- |

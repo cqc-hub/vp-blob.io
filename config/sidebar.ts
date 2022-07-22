@@ -76,6 +76,7 @@ const sliderBar: SidebarConfig = {
     {
       text: 'TypeScript',
       children: readFileSync('typescript'),
+      'link': '/typescript/'
     },
   ],
 
