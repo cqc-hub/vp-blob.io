@@ -81,7 +81,7 @@ export default defineUserConfig({
   theme: defaultTheme({
     logo: '/image/shaox_circle_绿色能量@2x.png',
     navbar,
-    sidebarDepth: 2,
+    sidebarDepth: 4,
     sidebar,
 
     editLink: true,

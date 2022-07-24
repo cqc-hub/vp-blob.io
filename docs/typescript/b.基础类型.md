@@ -1,6 +1,6 @@
 ---
 sidebar: auto
-sidebarDepth: 2
+sidebarDepth: 4
 ---
 
 #
@@ -44,7 +44,7 @@ const temp4: string = undefined;
 
 ## void
 
-### js
+- js
 
 ```html
 <a href="javascript:void(0)">清除缓存</a>
@@ -61,7 +61,9 @@ void (function life() {
 
 能这么做时因为， void 操作符强制将后面的函数声明 转化成了表达式， 因此整体相当于<aMark>void( (function life(){})() )</aMark>.
 
-### ts
+---
+
+- ts
 
 ts 中也有 void， 与 js 不同的是，这里的 void 用于描述一个内部没有 return 的语句， 或者没有显示 return 一个值的函数的返回值, 如:
 
@@ -210,6 +212,40 @@ const temp16: String = [];
 
 - <aMark>object</aMark>, object 的引入就是为了解决对 Object 类型的错误使用， 它代表 <aMark> 所有非原始类型的类型，即数组、对象与函数</aMark>
 
-- <aMark>{}</aMark>（一个空对象）
+```typescript
+// 成立
+const temp17: object = undefined;
+const temp18: object = null;
+const temp19: object = void 0;
 
-<!-- <TypeScript-Primitive-And-Object /> -->
+const temp20: object = { name: 'cqc' };
+const temp21: object = () => {};
+const temp22: object = [];
+
+// 不成立
+const temp23: object = 'cqc'; // err  值是原始类型
+const temp24: object = 23; // err 值是原始类型
+```
+
+- <aMark>{}</aMark>（一个空对象), <aMark>类似 Object</aMark>(比如 <aMark>new Object()</aMark> )，意味着除了 null / undefined 之外的任何值, 虽然可以将其作为变量的类型， 都是实际上不能对这个变量进行任何赋值操作 甚至 get 操作
+
+```typescript
+const temp25: {} = { name: 'cqc' };
+
+temp23.name; // err 类型 '{}' 上不存在name属性
+temp25.name = '233'; // err  类型 '{}' 上不存在name属性
+```
+
+#### 总结
+
+为了更好的区分 Object object {} 这三个具有迷惑性的类型，我们做下总结
+
+- 在任何情况下， 都<aMark>不要使用 Object</aMark> 以及类似的装箱类型.
+- 当不确定某个变量的类型， 但能确定它不是原始类型， 可以使用 object. 但是更推荐进一步区分的
+
+  - `Record<string, unknown> ` or `Record<string, any>`， 表示对象
+  - <aMark> unknown[] </aMark> or <aMark> any[] </aMark>, 表示数组
+  - <aMark> (...args: any[]) => any </aMark>示函数
+
+- 同样要避免使用 <aMark>{}</aMark>, <aMark>{}</aMark> 意味着 任何非 <aMark> null/undefined </aMark>的值， 从这点来看， 使用它和使用 <aMark>any</aMark> 一样恶劣
+    <!-- <TypeScript-Primitive-And-Object /> -->
