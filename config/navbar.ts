@@ -1,9 +1,9 @@
-import type { NavbarConfig } from '@vuepress/theme-default'
+import type { NavbarConfig } from '@vuepress/theme-default';
 
 const navBar: NavbarConfig = [
   {
     text: '个人记录',
-    link: '/note/'
+    link: '/note/',
   },
 
   {
@@ -11,20 +11,26 @@ const navBar: NavbarConfig = [
     link: '/components/',
   },
   {
-    text: '文档',
+    text: '笔记',
+
     children: [
       {
-        text: '分享',
-        link: '/documents/introduction',
+        text: '前端',
+        children: [
+          {
+            text: '分享',
+            link: '/documents/introduction',
+          },
+          {
+            text: 'TypeScript',
+            link: '/typescript/',
+          },
+          {
+            text: '微信小程序',
+            link: '/wxProgram/',
+          },
+        ],
       },
-      {
-        text: 'TypeScript',
-        link: '/typescript/',
-      },
-      {
-        text: '微信小程序',
-        link: '/wxProgram/'
-      }
     ],
   },
   {

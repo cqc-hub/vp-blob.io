@@ -131,11 +131,85 @@ const arr9: [name: string, age: number, height?: number] = ['cqc', 25];
 除了显示的越界访问， 还可能存在隐式的越界访问， 如通过解构赋值的形式
 
 ```typescript
-// 对于数组 没办法从类型层面
+// 对于数组 没办法从类型层面检查里面有多少个元素
 const arr1: string[] = [];
 const [e1, e2, ...rest] = arr1;
+
+// 对于元祖, 隐式的越界访问会抛出一个警告
+const arr2: [name: string, age:: number] = ['cqc', 25];
+const [name, age, other] = arr2; // err
 ```
 
+## 对象的类型标注
 
+```typescript
+/**
+ * name 必填
+ * id 只读 readonly（不可再次编辑）
+ * age 可选 ?
+ */
+interface IDescription {
+  name: string;
+  readonly id: number;
+  age?: number;
+}
+
+const obj1: IDescription = {
+  name: 'cqc',
+  id: 1,
+};
+
+// 可以重新赋值 name
+obj.name = 'cqc1';
+
+obj.id = 2; // err  readonly property
+```
+
+> - <aMark>readonly</aMark> 可以防止对象属性被再次赋值，在数组与元祖层面也有 只读属性， 不同的是
+>   - 只能将整个 数组/元祖 标记为只读， 而不能像对象那样 单单针对某个属性
+>   - 一旦 数组/元祖 被标记为只读， 那么 该 数组/元祖 的类型上， 将不再有 pop、push 等会修改原数据的方法, 报错信息也将是 **类型 xxx 上不存在属性 ‘push’ 这种**
+
+### type 与 interface
+
+一般比起 type（Type Alias， 类型别名），用 interface | class 的形式来描述对象、类的结构上比较推荐的, 而类型别名
+用来 **将一个函数签名、一组联合类型、一个工具类型等等抽离成一个完整独立的类型**
+
+### Object、object 以及 {}
+
+- <aMark>Object</aMark>， 在 javascript 中， 原型链的顶端 是 Object 以及 Function， 这意味着所有的原始类型与对象类型最终都指向 Object， 在 Typescript 中就表现为 <aMark>Object 包涵了所有的类型</aMark>.
+
+```typescript
+// 以下类型全部不会报错， 对于 null ｜ undefined ｜ void 0 ，需要关闭 strictNullChecks
+const temp1: Object = undefined;
+const temp2: Object = null;
+const temp3: Object = void 0;
+
+const temp4: Object = 'cqc';
+const temp5: Object = 500;
+const temp6: Object = { name: 'cqc' };
+const temp7: Object = () => {};
+const temp8: Object = [];
+```
+
+和 Object 类似的还有 Boolean Number String Symbol, 这几个**装箱类型(Boxed Types)** 同样包涵了一些超出预期的类型。 以 String 来说， 它包括了 undefined、null、 void 和 其代表的 **拆箱类型（Unboxed Types）** string, 但不包括其他装箱类型对应的拆箱类型, 如 boolean 与其基本对象类型.
+
+```typescript
+const temp9: String = undefined;
+const temp10: String = null;
+const temp11: String = void 0;
+const temp12: String = 'cqc';
+
+// 以下不成立 err
+const temp13: String = 5050;
+const temp14: String = { name: 'cqc' };
+const temp15: String = () => {};
+const temp16: String = [];
+```
+
+> **_在任何情况下， 都不应该使用这些 装箱类型_**
+
+- <aMark>object</aMark>, object 的引入就是为了解决对 Object 类型的错误使用， 它代表 <aMark> 所有非原始类型的类型，即数组、对象与函数</aMark>
+
+- <aMark>{}</aMark>（一个空对象）
 
 <!-- <TypeScript-Primitive-And-Object /> -->

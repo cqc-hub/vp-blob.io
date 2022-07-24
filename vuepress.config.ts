@@ -14,7 +14,7 @@ const navbar = require(basePath + '/config/navbar');
 const sidebar = require(basePath + '/config/sidebar');
 
 export default defineUserConfig({
-  // lang: 'zh-CN',
+  lang: 'zh-CN',
   title: '你好， 炒青菜！',
   description: 'hello VuePress',
   head: [
@@ -30,11 +30,10 @@ export default defineUserConfig({
   bundler: viteBundler({
     // https://v2.vuepress.vuejs.org/zh/reference/bundler/vite.html#%E9%85%8D%E7%BD%AE%E9%A1%B9
     viteOptions: {
-      // dist: path.resolve(__dirname, 'src')
       build: {
         chunkSizeWarningLimit: 1500,
         brotliSize: false, // 不统计
-        target: 'esnext', 
+        target: 'esnext',
         minify: 'esbuild', // 混淆器，terser构建后文件体积更小
       },
     },
@@ -80,7 +79,7 @@ export default defineUserConfig({
   ],
 
   theme: defaultTheme({
-    // logo: '/image/shaox_circle_绿色能量@2x.png',
+    logo: '/image/shaox_circle_绿色能量@2x.png',
     navbar,
     sidebarDepth: 2,
     sidebar,
