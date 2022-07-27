@@ -86,10 +86,12 @@ export default defineUserConfig({
 
     editLink: true,
     lastUpdated: false,
+    contributors: false,
     repo: 'https://github.com/cqc-hub/vp-blob.io',
     docsDir: '/docs',
     docsBranch: 'master',
     editLinkPattern: ':repo/tree/:branch/:path',
+    toggleSidebar: '这个没效果?'
   }),
 
   clientAppEnhanceFiles: [`${basePath}/config/clientAppEnhance.ts`],
