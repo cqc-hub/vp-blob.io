@@ -159,4 +159,114 @@ async function* asyncGenFun(): AsyncIterable<void> {}
 ### 类与类成员的类型签名
 
 类的主要结构只有 **构造函数、属性、方法、访问符**, 我们只需要关注这三个部分即可。这里需要说明一点，有人可能认为装饰器也是 Class 的结构，
-但这边
+但个人认为它并不是 Class 携带的逻辑， 不应该被归类到这里。
+
+属性的类型标注类似于变量， 而构造函数、方法、存取器的类型标注类似函数
+
+```typescript
+class Foo {
+  prop: string;
+
+  constructor(inputProp: string) {
+    this.prop = inputProp;
+  }
+
+  print(addon: string): void {
+    console.log(`${this.prop} and ${addon}`);
+  }
+
+  get propA(): string {
+    return this.prop + 'A';
+  }
+
+  set propA(value: string) {
+    this.prop = value + 'A';
+  }
+}
+```
+
+唯一需要注意的是 setter 方法不允许进行返回值的类型标注, 可以理解为setter的返回值并不会进行消费,
+他是一个只会关注过程的函数.类的方法同样可以进行函数重载， 且语法一致，这里不做描述
+
+就是函数可以通过 **函数声明** 和 **函数表达式** 创建一样, 类同样可以通过类声明 和 类表达式 创建
+
+```typescript
+// 类表达式
+const Foo = {
+  prop: string;
+
+  constructor(v: string) {
+    this.prop = v;
+  }
+}
+```
+
+### 修饰符
+
+在ts中我们可以使用这些修饰符
+
+- <aMark>public</aMark>
+
+  在 类、类的实例、子类 中能被访问
+
+- <aMark>private</aMark>
+
+  仅在 类的内部 可以访问
+
+- <aMark>protected</aMark>
+
+  仅在类与子类中可以访问, 你可以把 类 和 类的实例当成两种概念， 一旦实例化完毕(出厂零件)， 那就和类（工厂） 没有任何关系了, 即不允许再访问 受保护的成员
+- <aMark>readonly</aMark>
+
+除了 **readonly** 以外， 其他修饰符都是属于 访问性修饰符，而 readonly 属于操作性修饰符(和 interface 中的 readonly 意义一致)
+
+```typescript
+class Foo {
+  private prop: string;
+
+  constructor(v: string) {
+    this.prop = v;
+  }
+
+  protected print(addon: string): void {
+    console.log(this.prop + addon);
+  }
+
+  public get propA(): string {
+    return this.prop + 'A'
+  }
+
+  public set propA(v: string) {
+    this.propA = v + 'A'
+  }
+}
+
+```
+
+> 我们通常不会为构造函数添加修饰符， 而是让他保持默认的 **public**
+
+当你不显示使用 访问性修饰符 的时候， 成员默认是被标记为 public. 实际上，通过构造函数为类赋值
+的方式还是略显麻烦, 需要通过 声明类属性 以及 在构造函数中赋值. 简单起见， 我们可以在 构造函数中对参数直接声明
+应用访问性修饰符
+
+```typescript
+// 此时， 参数会直接被赋值， 免去后续的手动赋值（this.name = name）
+class Foo {
+  constructor(public name: string) {}
+}
+
+const foo = new Foo('cqc') // { name: 'cqc'}
+```
+
+### 静态成员
+
+ts中， 可以用 static 关键字来标识一个成员为静态成员
+
+```typescript
+class Foo {
+  static staticHandler() {}
+  public publicHandler() {}
+}
+```
+
+不同与实例成员， 类内部的静态成员**无法通过 this 访问**, 需要通过<aMark>Foo.staticHandler</aMark>进行访问
