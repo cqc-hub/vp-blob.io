@@ -269,4 +269,200 @@ class Foo {
 }
 ```
 
-不同与实例成员， 类内部的静态成员**无法通过 this 访问**, 需要通过<aMark>Foo.staticHandler</aMark>进行访问
+不同与实例成员， 类内部的静态成员**无法通过 this 访问**, 需要通过<aMark>Foo.staticHandler</aMark>进行访问. 在 es5 中表现形式如下
+
+```javascript
+var Foo = /** @class */ (function() {
+  function Foo () {}
+
+  Foo.staticHandler = function() {}
+  Foo.prototype.publicHandler = function() {}
+
+  return Foo
+}())
+
+const foo = new Foo();
+foo.publicHandler(); //  publicHandler
+foo.staticHandler(); // typeError (staticHandler is not a function)
+
+Foo.staticHandler(); // staticHandler
+```
+
+从上面例子可以看出, **静态成员是直接挂载在函数体上， 而实例成员挂载在原型上**， 这是二者的最重要差异。
+> 静态成员不会被实例继承， 它始终只属于单前第一的这个类（包括子类），
+> 而原型对象上的**实例成员则会沿着原型链进行传递**， 能够被继承
+
+对于静态成员和实例成员的使用时机， 其实并不需要非常刻意的进行划分。 比如这里用 **类 + 静态成员** 来收敛变量与 utils 方法:
+
+```typescript
+class Utils {
+  private static identifier = 'cqc';
+
+  private static studyWithU() {};
+
+  public static makeHappy() {
+    Utils.studyWithU();
+
+    //...
+  }
+
+  makeHappyInstance() {
+    Utils.makeHappy();
+  }
+}
+
+const utils = new Utils();
+utils.makeHappy(); // typeError
+utils.makeHappyInstance(); // makeHappyInstance
+Utils.makeHappy(); // makeHappy
+```
+
+### 继承、实现、抽象类
+
+Class 基本不会离开继承。 和 javascript 一样， typescript 中也使用 extends 关键字来实现继承
+
+```typescript
+class Base {}
+class Derived extends Base {}
+```
+
+对于上面两个类， 比较严谨的称呼是 **基类（Base）** 与 **派生类(Derived)**。 当然，如果说你觉着叫 父类与子类更容易理解
+也没问题。 关于基类与派生类, 我们需要了解的是 **派生类对基类成员对访问与覆盖操作**
+
+基类中的哪些成员可以被派生类访问， 完全是有其访问性修饰符决定的。我们在上面已经介绍过， 派生类中可以访问到
+使用 <aMark>public</aMark> 或 <aMark>protected</aMark> 修饰符的基类成员。 除了访问以外， 基类中的方法也可以
+在派生类中被覆盖， 但我们仍然可以通过 super 访问到基类中的方法;
+
+```typescript
+class Base {
+  print() {}
+}
+
+class Derived extends Base {
+  print() {
+    super.print();
+    // some new operations ...
+  }
+}
+```
+
+在派生类中覆盖基类方法时候， 我们并不能确定派生类的这一方法能够覆盖基类方法， 万一基类中不存在这个方法呢？ so， typescript 4.3 中新增了
+<aMark>override</aMark> 关键字， 来确保派生类尝试覆盖的方法一定在基类中存在定义
+
+```typescript
+class Base {
+  print() {}
+}
+
+class Derived extends Base {
+  // 这里ts将会给出错误， 因为尝试覆盖的方法未在基类中声明  override print 才行
+  override printA() {
+  }
+}
+
+```
+
+除了基类和派生类以外， 还有一个比较重要的概念： **抽象类**。
+
+抽象类是对类结构与方法的抽象， 简单来说， **一个抽象类描述了一个类中应当有哪些成员（属性、方法等），一个抽象方法描述了这一方法在实际实现中的结构**。
+我们知道类的方法和函数非常相似， 包括结构， 因此抽象方法其实描述的就是这个方法的**入参类型**与**返回值类型**.
+
+抽象类使用 <aMark>abstract</aMark>关键字声明:
+
+```typescript
+// 无法声明静态的抽象成员
+abstract class AbsFoo {
+  abstract absProp: string;
+  abstract get absGetter(): string;
+  abstract absMethod(name: string): string;
+}
+```
+
+注意， 抽象类中的成员也需要使用 abstract 关键字才能被视作抽象类成员， 如这里的抽象方法。我们可以实现（<aMark>implements</aMark>）一个抽象类：
+
+```typescript
+class Foo implements AbsFoo {
+  absProp: string = 'cqc';
+
+  get asbGetter() {
+    return this.absProp;
+  }
+
+  absMethod(name: string) {
+    return name
+  }
+}
+```
+
+要实现一个抽象类， 我们必须实现这个抽象类的每一个抽象成员。 需要注意的是， **在 ts 中无法声明静态的抽象成员**。
+
+对于抽象类， 他的本质就是描述类的的结构。 看到结构，你是否想到了 interface ？ 是的， interface 不仅可以声明函数结构， 也可以声明类的结构:
+
+```typescript
+interface FooAbstract {
+  absProp: string;
+  get absGetter(): string;
+  absMethod(name: string): string;
+}
+
+class Foo implements FooAbstract {
+  absProp = 'cqc';
+
+  get absGetter() {
+    return this.absProp;
+  }
+
+  absMethod(name: string) {
+    return name
+  }
+}
+```
+
+在上面的例子中， 我们用类群实现了一个接口。 这里接口的作用和抽象类一样， 都是**描述这个类的结构**.
+除此之外， 我们还可以使用 **Newable Interface** 来**描述一个类的结构**（类似于描述函数结构的 Callable Interface）：
+
+```typescript
+class Foo {}
+
+interface FooStruct {
+  new(): Foo
+}
+
+declare const NewableFoo: Foostruct;
+
+const foo = new NewableFoo();
+```
+
+## 总结
+
+这一篇中了解了 ts 的函数与类， 它们分别代表了面向过程与面向对象的编程理念。 对于函数， 着重了解其结构体的类型， 即参数类型（可选参数与剩余参数） 与返回值类型的标注。
+而对于类， 实际上我们了解更多的是新的语法， 如访问性修饰符 <aMark>public</aMark> / <aMark>private</aMark> / <aMark>protected</aMark>,
+操作性修饰符<aMark>readonly</aMark>, 静态成员<aMark>static</aMark>, 抽象类<aMark>abstract</aMark>, 以及<aMark>override</aMark>等
+在 javascript 中不存在或实现并不完全的能力
+
+## 扩展
+
+### 私有构造函数
+
+```typescript
+class Foo {
+  private constructor() {}
+}
+```
+
+看起来没有什么问题， 都是当你想要实例化这个类的时候， 一行美丽的操作机会出现：**类的构造函数被标记为私有，且只允许在类内部访问**.
+
+那就很奇怪了， 我们要一个不能实例化的类有啥用？
+
+有些场景下私有构造函数确实有奇妙的用法， 比如我将一个类作为 utils 方法时候， 此时 Utils 类内部全部都是静态成员，我也不希望真的有人去实例化这个类，
+此时就可以使用私有构造函数来阻止它被错误的实例化:
+
+```typescript
+class Utils {
+  static ident = 'cqc';
+
+  private constructor() {}
+
+  static fn() {}
+}
+```
