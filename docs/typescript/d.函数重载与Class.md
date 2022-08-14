@@ -466,3 +466,95 @@ class Utils {
   static fn() {}
 }
 ```
+
+或者一个类希望把实例化逻辑通过方法来实现， 而不是通过 new 的形式时候，也可以使用构造函数来达成目的.
+
+## SOLID 原则
+
+SOLID 原则是面向对象编程中的基本原则， 他包括以下五种基本原则。
+
+### S
+
+**单一功能原则， 一个类应该仅仅具有一种职责**， 这也意味着只存在一种原因使得需要修改类的代码，
+如对于一个数据实体的操作，其读操作于写操作也应当被视为两种不同的职责， 并被分配到两个类中。
+
+### O
+
+ **开放封闭原则，一个类应当是可扩展但不可修改的**。 即假设我们的业务中支持通过微信、支付宝登录， 原本在一个login方法中进行 if else 判断，
+假设后面又新增了抖音、美团登录， 难道要加 else if / switch case 吗？
+
+```typescript
+
+enum LoginType {
+  WeChat,
+  TaoBao,
+  TikTok,
+  // ...
+}
+
+class Login {
+  public static handler(type: LoginType) {
+    if (type === LoginType.WeChat) { }
+    else if(type === LoginType.TaoBao) { }
+    else if(type === LoginType.TikTok) {}
+    else {
+      throw new Error('Invalid Login Type!')
+    }
+  }
+}
+
+
+```
+
+当然不， 基于开放封闭原则， 我们应当将登陆逻辑抽离出来， 不同登陆方式通过扩展这个基础类来实现自己的特殊逻辑。
+
+```typescript
+// interface LoginHandler {
+//   handler(): void;
+// }
+
+abstract class LoginHandler {
+  abstract handler(): void
+}
+
+
+class WeChatLoginHandler implements LoginHandler {
+  handler() {}
+}
+
+class TaoBaoLoginHandler implements LoginHandler {
+  handler() {}
+}
+
+class TikTokLoginHandler implements LoginHandler {
+  handler() {}
+}
+
+class Login {
+  public static handlerMap: Record<LoginType, LoginHandler> = {
+    [LoginType.TaoBao]: new TaoBaoLoginHandler(),
+    [LoginType.TikTok]: new TikTokLoginHandler(),
+    [LoginType.WeChat]: new WeChatLoginHandler()
+  }
+
+  public static handler(type: LoginType) {
+    Login.handlerMap[type].handler()
+  }
+}
+
+```
+
+### L
+
+**里式替换原则， 一个派生类可以在程序的任何一处对其基类进行替换**, 这也意味着， 子类完全继承父类的一切，
+对父类进行了功能的扩展（而非收缩）
+
+### I
+
+**接口分离原则， 类的实现应当只需要实现自己需要的那部分接口**。 比如微信登录支持指纹识别， 支付宝支持指纹识别、人脸识别， 这个时候微信登录的类
+应该不需要实现人脸识别才对。 这也意味着我们提供的抽象类应当按照功能纬度拆分成粒度更小的组成才对
+
+### D
+
+**依赖倒置原则**, 这是实现开闭原则的基础， 它的核心思想即是**对功能的实现应该依赖于抽象层**, 即不同的逻辑通过实现不同的抽象类。
+还是登录的例子， 我们的登录提供方法应该基于共同的登录抽象类实现（LoginHandler）， 最终调用方法也基于这个抽象类， 而不是在一个高阶登录方法中去依赖多个低阶登录的提供方
