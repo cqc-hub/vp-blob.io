@@ -159,3 +159,141 @@ function justThrrow(): never {
   throw new Error()
 }
 ```
+
+在类型流的分析中， 一旦一个返回值为 never 的函数被调用， 那么下方的代码都会被视为无效的代码（即无法执行到）：
+
+```typescript
+function justThrow(): never {
+  throw new Error()
+}
+
+function foo(input: number) {
+  if(input > 1) {
+    justThrow();
+    // 等同于 return 语句后面的代码， 即 dead code
+    const name = 'cqc'
+  }
+}
+```
+
+我们可以显示的利用它来进行类型检查， 即上面在联合类型中 never 类型神秘消失的原因。
+假设，我们需要对一个联合类型的每个类型分枝进行不同处理：
+
+```typescript
+declare const strOrNumOrBool: string | number| boolean;
+
+if (typeof strOrNumOrBool === 'string') {
+  console.log('string');
+} else if(typeof strOrNumOrBool === 'number') {
+  console.log('number');
+}  else if(typeof strOrNumOrBool === 'boolean') {
+  console.log('boolean');
+} else {
+  throw new Error('unknown input type: ' + strOrNumOrBool)
+}
+```
+
+如果我们希望这个变量的每一种类型都需要得到妥善处理， 在最后可以抛出一个错误， 但这是只有运行时候
+才会生效的措施， 是否能在类型检查时候就分析出来？
+
+实际上， 由于 TypeScript 强大的类型分析能力， 每经过一个 if 语句处理， <aMark>strOrNumOrBool</aMark> 的类型分枝就会减少一个。
+而在最后的 else 代码块中， 它的类型就只剩下了 nerve 类型， 即一个无法再细分、本质上并不存在的虚空类型。在这里， 我们可以利用 never 类型变量仅能
+赋值给 never 类型变量的特性， 来巧妙地分支处理检查：
+
+```typescript
+if (typeof strOrNumOrBool === 'string') {
+  // 一定是 string
+  strOrNumOrBool.charAt(1);
+} else if(typeof strOrNumOrBool === 'number') {
+  strOrNumOrBool.toFixed();
+} else if(typeof strOrNumOrBool === 'boolean') {
+  strOrNumOrBool === true;
+} else {
+  const _exhaustiveCheck: never = strOrNumOrBool;
+  throw new Error('unknown input type: ' + strOrNumOrBool)
+}
+```
+
+假如某个粗心的同事新增了一个类型分支， <aMark>strOrNumOrBool</aMark> 变成了  <aMark>strOrNumOrBoolOrFunc</aMark>  却忘记了新增对应的处理分支， 此时在 else 代码块中就会出现将 Function 类型赋值给 never 类型变量的类型错误。
+
+这实际就是利用了类型分析能力与 never 类型只能赋值给 never 这一点， 来确保联合类型能够被妥善处理。
+
+除了主动使用 never 类型的两种方式， never 在某些情况下还会不请自来：
+
+```typescript
+const arr = [];
+
+arr.push('cqc'); // 类型 string 不能赋值给 类型 never 的参数
+```
+
+此时这个未标明类型的数组被推导为了  <aMark>never[]</aMark> 类型， 这种情况仅会在你启用了 <aMark>strictNotNullChecks</aMark> 配置，
+同时禁用了 <aMark>noImplicitAny</aMark> 配置时候才会出现。 解决这个问题也很简单， 为这个数组声明一个具体类型即可。
+
+## 类型断言
+
+警告编译器不准报错， 类型断言能显示的告诉类型检查程序当前这个变量的类型， 可以进行类型分析地修正、类型。
+它其实就是一个将变量的已有类型更改为新指定类型的操作， 它的基本语法为 <aMark>as NewType</aMark>,
+你可以将 any/unknown 类型断言到一个具体类型
+
+```typescript
+let unknownVar: unknown;
+
+(unknownVar as { foo: () => {} }).foo();
+```
+
+还可以 as 到 any 来为所欲为， 跳过所有的类型检查:
+
+```typescript
+const str: string = 'cqc';
+
+(str as any).func().foo;
+```
+
+也可以在联合类型断言一个具体的分支:
+
+```typescript
+function foo(union: string | number) {
+  if ((union as string).includes('cqc')) {
+
+  }
+
+
+  if ((union as number).toFixed() === 599) {
+
+  }
+}
+```
+
+但是类型断言的正确打开方式是， 在 TypeScript 类型分析不正确或不符合预期时候， 将其断言为此处的正确类型:
+
+```typescript
+interface IFoo {
+  name: string;
+}
+
+declare const obj: {
+  foo: IFoo
+}
+
+const {
+  foo = {} as IFoo
+} = obj;
+```
+
+这里从 <aMark>{}</aMark> 字面量类型断言为了 <aMark>IFoo</aMark> 类型, 即为解构赋值默认值进行了预期的类型断言。
+当然， 更严谨的方式应该是定义为 `Partial<IFoo>` 类型。
+
+除了使用 as 语法以外， 你也可以使用 `<>` 语法。 它虽然书写更简洁， 但效果一致， 只是在 tsx 中尖括号并不能很好的被分析出来。
+
+```typescript
+function foo(arg: string | number) {
+  if ((<string>arg).charAt(1)) {}
+}
+```
+
+你也可以通过 TypeScript ESLint 提供的 <aMark>consistent-type-assertions</aMark> 规则来约束断言风格。
+
+需要注意的是， 类型断言应当是在迫不得已的情况下使用的。 虽然说我们可以用类型断言纠正不正确的类型分析， 但类型分析在
+大部分场景下还是可以智能地满足我们的需求的。
+
+总的来说， 在实际场景中， 还是 <aMark>as any</aMark> 这一操作更多。 但这也是让你的代码编程 AnyScript 的罪魁祸首之一， 请务必小心使用.
