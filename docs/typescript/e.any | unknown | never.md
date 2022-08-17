@@ -297,3 +297,110 @@ function foo(arg: string | number) {
 大部分场景下还是可以智能地满足我们的需求的。
 
 总的来说， 在实际场景中， 还是 <aMark>as any</aMark> 这一操作更多。 但这也是让你的代码编程 AnyScript 的罪魁祸首之一， 请务必小心使用.
+
+### 双重断言
+
+如果在使用类型断言时候， 原类型与断言类型之间差异过大， 也就算指鹿为马太过离谱， 离谱到了指鹿为霸王龙的程度， TypeScript 会给你
+一个类型报错
+
+```typescript
+const str: string = 'cqc';
+
+// 从 x 类型到 y 类型到断言可能是错误的， blabla
+(str as { handler: () => {} }).handler();
+```
+
+此时他会提醒你先断言道 unknown 类型， 在断言到 预期类型， 就像这样：
+
+```typescript
+const str: string = 'cqc';
+
+(str as unknown as { handler: () => {} }).handler();
+
+// 尖括号断言
+(<{handler: () => {}}>(<unknown>str)).handler();
+```
+
+这是因为你的断言类型和原类型的差异太大， 需要先断言到一个通用的类， 即 any/unknown。
+这一通用类型包含了所有可能的类型， 因此**断言到它和从它断言到另一个类型**的差异不大。
+
+### 非空断言
+
+非空断言其实是类型断言的简化， 它使用<aMark>!</aMark> 语法， 即 <aMark>obj!.func()!.prop</aMark> 的形式
+标记前面的一个声明一定是非空的（实际上就是剔除了 null 和 undefined 类型）
+
+```typescript
+declare const foo: {
+  func?: () => ({
+    prop?: number | null;
+  })
+}
+
+foo.func!().prop!.toFixed();
+```
+
+其应用位置类似于可选链`foo.func?.().prop?.toFixed()`, 但不同的是， 非空断言的运行时仍然会保持调用链， 因此在运行时候可能会报错。
+而可选链则会在某一部分收到 undefined 或 null 时候直接短路掉， 不会再发生后面的调用。
+
+你可以通过 <aMark>non-nullable-type-assertion-style</aMark>
+规则来检查代码中是否存在类型断言能够被简写为非空断言的情况。
+
+类型断言还用一种用法上作为代码提示的辅助工具， 比如对于下面这个稍微复杂的接口：
+
+```typescript
+interface IStruct {
+  foo: string;
+  bar: {
+    barPropA: string;
+    barPropB: string;
+    barMethodL: () => void;
+    baz: {
+      handler: () => Promise<void>
+    }
+  }
+}
+
+```
+
+假设你想要基于这个结构随便实现一个对象
+
+```typescript
+const obj: IStruct = {};
+```
+
+这时候等你的是 一堆类型报错， 你必须规规整整地实现这个接口才可以。 但如果使用类型断言， 我们可以在
+保留类型提示的前提下， 不那么完整地实现这个结构:
+
+```typescript
+const obj = <IStruct>{
+  bar: {
+    // 仍有类型提示， 错误实现时候仍有 报错信息
+    baz: {}
+  }
+}
+```
+
+## 扩展
+
+这一章节讲的其实都和 TypeScript 的类型层级有所关联, 前面讲到过，
+any 与 unknown 属于 **Top Type**, 表现在它们包含了所有可能的类型， 而
+never 属于 **Bottom Type**， 表现在它是一个虚无的、不存在的类型。那么加上此前学习的原始类型与字面量类型等，
+按照类型的包含来进行划分， 我们大概能够梳理出这么个类型层级关系：
+
+- 最顶级的类型  any、unknown
+- 特殊的 Object， 它也包含了所有的类型, 但和 Top Type 比较还是差了一层
+- String、Boolean、Number 这些装箱类型
+- 原始类型与对象类型
+- 字面量类型，即更精确的原始类型与对象类型， 需要注意的是 null、 undefined 并不是字面量类型的子类型
+- 最底层的never
+
+> 实际上这个层级链并不完全， 因为还有联合类型、交叉类型、 函数类型的情况， 后面会讲到
+
+而实际上类型断言的工作原理也和类型层级有关，在判断断言是否成立，即差异是否能接受时， 实际上判断的即是这两个类型是否能够找到一个公共的父类型.
+比如 <aMark>{ }</aMark> 和 <aMark>{ name: string }</aMark> 其实可以认为拥有公共的父类型 <aMark>{ }</aMark> (一个新的 <aMark>{ }</aMark>,
+你可以理解为这是一个基类， 参与断言的 `{ }` 和 `{ name: string; }` 是它的派生类。
+)
+
+如果找不到具有意义的公共父类型呢？ 这时候就需要请出 **Top Type** 了， 先把它断言到 **Top Type**， 那么就拥有了公共父类型**Top Type**， 在
+断言到具体类型也是同理。
+你可以理解为先向上断言，再向下断言。
