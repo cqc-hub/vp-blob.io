@@ -129,7 +129,7 @@ function ensureArray<T>(input: MaybeArray<T>): T[] {
 即 `A & B`, **需要同时满足 A 与 B 两个类型** 才行：
 
 ```typescript
-interface NameStruct {
+interface Name Struct {
   name: string;
 }
 
@@ -196,3 +196,221 @@ type UnionIntersection2 = (string | number | symbol) & string;
 ```
 
 总结一下联合类型和交叉类型的区别就是，联合类型只需要符合成员之一即可（`||`）, 而交叉类型需要严格符合每一位成员（`&&`）.
+
+## 类型索引
+
+索引类型指的不是某一个特定的类型工具， 他其实包含三个部分：**索引类型签名、索引类型查询、索引类型访问**.
+实际上这三者都是独立的类型工具。 唯一的共同点上， **它们都过索引的形式来进行类型操作**， 但索引签名类型是**声明**，
+后两者是**读取**。
+
+### 索引签名类型
+
+索引签名类型主要是指， 在类型别名或接口中， 通过以下语法来**快速声明一个键值类型一致的类型结构**：
+
+```typescript
+interface AllStringTypes {
+  [key: string]: string;
+}
+
+type AllStringTypes = {
+  [key: string]: string;
+}
+
+```
+
+这时， 即使你还没声明具体的属性， 对于这些类型结构的访问属性也将全部被视为 string 类型。
+
+```typescript
+type PropType1 = AllStringTypes['cqc']; // string
+type PropType2 = AllStringTypes['233']; // string
+```
+
+这个例子中我们声明的键的类型为 string（ <aMark>[key: string]</aMark> ),
+这也意味着在实现这个类型结构的变量中**只能声明字符串类型的键**。
+
+```typescript
+const foo: AllStringTypes = {
+  'cqc': '233'
+}
+```
+
+但由于 javascript 中， 对于 <aMark>obj[prop]</aMark> 形式的访问会将**数字所以访问转换为字符串索引访问**，
+也就是说， <aMark>obj[233]</aMark> 和 <aMark>obj['233']</aMark> 的效果是一致的。 因此，在字符串索引签名类型
+中我们仍然可以声明数字类型的键。 类似的 symbol 类型也是如此：
+
+```typescript
+const foo: AllStringTypes = {
+  'cqc': '233',
+  233: 'cqc',
+  [Symbol('cqc')]: 'symbol'
+}
+
+```
+
+索引签名类型也可以和具体的键值对类型声明并存， 但这时这些具体的键值类型也需要符合索引签名类型的声明:
+
+```typescript
+interface AllStringTypes {
+  [key: string]: string | number;
+  age: number; // 键和值需要符合索引类型
+
+   // error:  type 'boolean' is not assignable to 'string' index type 'string | number'
+  isBool: boolean;
+}
+```
+
+索引签名类型最常见的场景是在重构 javascript 代码时候， 为内部属性较多的对象声明一个 any 的索引签名类型，
+以此来暂时支持**对类型未明确属性的访问**， 并在后续慢慢补全。
+
+```typescript
+interface AnyType {
+  [key: string]: any;
+}
+
+const foo: AnyType['cqc'] = 'any value';
+```
+
+### 索引类型查询
+
+使用 <aMark>keyof</aMark> 操作符进行查询。 严谨地说， 他可以将对象中的所有键转换为对应字面量类型，
+然后在组合成联合类型。
+
+注意， **这里并不会将数字类型的键名转换为字符串类型字面量， 而是仍然保持为数字类型字面量** 。
+
+```typescript
+interface Foo {
+  name: string;
+  233: string;
+  '333': string;
+}
+
+type FooKeys = keyof Foo; // 'name' | 233 | '333'  (数字字面量类型仍然保持为数字类型字面量)
+```
+
+除了应用在已知的对象类型结构上以外， 你还可以直接 <aMark>keyof any</aMark> 来生产一个联合类型，
+它会由所有可用作对象键值的类型组成： <aMark>string | number | symbol</aMark>。也就是说，
+他是由无数字面量类型组成的， 由此我们可以知道， **keyof 的产物必定是一个联合类型**。
+
+### 索引类型访问
+
+在 javascript 中 我们可以通过 `obj[expression]` 的方式来动态访问一个对象属性（即计算属性），
+expression 表达式会先被执行， 然后实现用回值来访问属性。 而 typescript 中我们也可以通过类型的方式，
+只不过这里的 expression 要更换成类型。
+
+```typescript
+interface NumberRecord {
+  [key: string]: number;
+}
+
+type PropType = NumberRecord[string]; // number
+```
+
+这里， 我们使用 string 类型来访问 NumberRecord. 由于其内部声明了数字类型的索引签名，
+这里访问到的结果即是 number 类型。 注意， 其访问方式与返回值均是类型。
+
+更直观的例子是通过字面量类型来进行索引类型访问：
+
+```typescript
+interface Foo {
+  name: string;
+  age: number;
+}
+
+type PropName = Foo['name']; // string
+type PropAge = Foo['age']; // number
+```
+
+看起来这里就是普通的值访问， 但实际上这里的 `name` 和 `age` 都是**字符串字面量类型， 而不是一个 javascript 字符串值**。
+索引类型查询的本质其实就是， **通过键的字面量类型(`'name'`)访问这个键对应的键值类型(`string`)**.
+
+看到这里你肯定会想到， 上面的 keyof 操作符能一次性获取这个对象所有的键的字面量类型， 是否能用在这里？
+当然， 这里可是 typescript !
+
+```typescript
+interface Foo {
+  PropA: number;
+  PropB: string;
+  PropC: boolean;
+}
+
+type PropTypeUnion = Foo[keyof Foo]; // number | string | boolean
+```
+
+使用字面量联合类型进行索引类型访问时， 其结果就是将联合类型每个分支对应的类型进行访问后的结果，
+重新组装成联合类型。 **索引类型查询、索引类型访问通常会和映射类型一起搭配使用**， 前两者负责访问键，
+而映射类型在其基础上访问键值类型（映射类型下面讲到）。
+
+注意， 在未声明索引签名类型的情况下， 我们不能使用 <aMark>Foo[string]</aMark> 这种原始类型的访问方式，
+而只能通过键名的字面量类型来进行访问。
+
+```typescript
+interface Foo {
+  PropA: number;
+}
+
+type PropAType = Foo['PropA'];
+
+// Error: 类型 Foo 没有匹配类型 'string' 的索引签名
+type PropAType = Foo[string];
+```
+
+索引类型的最佳拍档之一就是映射类型， 同时映射类型也是类型编程中常用的一个手段。
+
+### 映射类型： 类型编程第一步
+
+不同于索引类型包含好几个部分， 映射类型指的就是一个确切的类型工具。 看到映射这个词你应该
+能联想到 javascript 中数组的 map 方法， 实际上也是如此， 映射类型的主要作用即是**基于键名映射到键值类型**。
+概念不好理解， 直接上例子：
+
+```typescript
+type Stringify<T> = {
+  [key in keyof T]: string;
+}
+```
+
+这个工具类型会接受一个对象类型（假设我们只会这么用）， 使用 keyof 获得这个对象类型的键名组成字面量联合类型，
+然后通过映射类型（即这里的 in 关键字） 将这个联合类型的每一个成员映射出来， 并将其键值类型 设置为 string。
+
+具体使用的表现上这样的：
+
+```typescript
+interface Foo {
+  prop1: string;
+  prop2: number;
+  prop3: boolean;
+  prop4: () => void;
+}
+
+type StringifyFoo = Stringify<Foo>;
+
+// 等价于
+interface StringifyFoo {
+  prop1: string;
+  prop2: string;
+  prop3: string;
+  prop4: string;
+}
+```
+
+我们可以使用 伪代码的形式进行说明：
+
+```typescript
+const StringFieldFoo = {};
+for(const k of Object.keys(Foo)) {
+  StringFieldFoo[k] = string;
+}
+```
+
+看起来好像很奇怪， 我们应该很少会需要把一个接口的所有属性类型映射到 string？ 这有什么意义吗？
+
+既然拿到了键， 那键值类型其实也能拿到：
+
+```typescript
+type Clone<T> = {
+  [K in keyof T]: T[K];
+}
+```
+
+这里的 `T[K]` 其实就是上面说到的索引类型访问， 我们使用键的字面量类型访问到了键值的类型，
+这里相当于克隆了一个接口。 这里需要注意的是， 只有 `K in` 属于映射类型的语法， `keyof T` 属于 keyof 操作符，
+`[K in keyof T]` 的 `[]` 属于索引类型签名， `T[K]` 属于索引类型访问。
