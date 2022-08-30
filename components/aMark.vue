@@ -21,5 +21,6 @@
     background-color: #ff4f2c20;
     padding: 0 5px;
     font-weight: 500;
+    border-radius: 3px;
   }
 </style>
