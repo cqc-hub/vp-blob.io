@@ -1,5 +1,13 @@
 ---
 sidebar: 'auto'
+
+prev:
+ text: g.类型工具(part 2)
+ link: /typescript/g.类型工具(part 2).html
+
+next:
+ text: i.结构化类型系统：类型兼容性判断的幕后
+ link: /typescript/i.结构化类型系统：类型兼容性判断的幕后.html
 ---
 
 #

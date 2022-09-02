@@ -1,5 +1,13 @@
 ---
 sidebar: 'auto'
+
+prev:
+ text: b.基础类型
+ link: /typescript/b.基础类型.html
+
+next:
+ text: d.函数重载与Class
+ link: /typescript/d.函数重载与Class.html
 ---
 
 #

@@ -1,6 +1,14 @@
 ---
 sidebar: auto
 sidebarDepth: 4
+
+prev:
+ text: a.项目环境搭建
+ link: /typescript/a.项目环境搭建.html
+
+next:
+ text: c.字面量类型与枚举
+ link: /typescript/c.字面量类型与枚举.html
 ---
 
 #
@@ -243,7 +251,7 @@ temp25.name = '233'; // err  类型 '{}' 上不存在name属性
 - 在任何情况下， 都<aMark>不要使用 Object</aMark> 以及类似的装箱类型.
 - 当不确定某个变量的类型， 但能确定它不是原始类型， 可以使用 object. 但是更推荐进一步区分的
 
-  - `Record<string, unknown> ` or `Record<string, any>`， 表示对象
+  - `Record<string, unknown>` or `Record<string, any>`， 表示对象
   - <aMark> unknown[] </aMark> or <aMark> any[] </aMark>, 表示数组
   - <aMark> (...args: any[]) => any </aMark>示函数
 

@@ -1,5 +1,8 @@
 ---
-sidebar: 'auto'
+sidebar: auto
+prev:
+ text: h.泛型
+ link: /typescript/h.泛型.html
 ---
 
 #
@@ -153,3 +156,77 @@ export declare class TagProtector<T extends string> {
 
 export type Nominal<T, U extends string> = T & TagProtector<U>;
 ```
+
+在这里我们使用 `TagProtector` 声明了一个具有 `protected` 属性的类， 使用它来携带额外的信息， 并合原本的信息合并到一起，
+就得到了 `Nominal` 工具类型。
+
+有了 Nominal 这个工具类型， 我们就可以尝试改进上面的例子来:
+
+```typescript
+type CNY = Nominal<number, 'CNY'>;
+type USD = Nominal<number, 'USD'>;
+
+const CNYCount = 100 as CNY;
+const USDCount = 200 as USD;
+
+const addCNY = (source: CNY, input: CNY) => (source + input) as CNY;
+
+// err,  Argument of type 'USD' is not assignable to parameter of type 'CNY'.
+addCNY(USDCount, CNYCount);
+
+
+addCNY(CNYCount, CNYCount);
+```
+
+这一实现方式本质上只在类型层面做了数据的处理， 在运行时无法进行进一步的限制。 我们还可以从逻辑层面入手确保安全性：
+
+```typescript
+class CNY {
+ private __tag!: void;
+ constructor(public value: number) {}
+}
+
+class USD {
+ private __tag!: void;
+ constructor(public value: number) {}
+}
+
+const cny = new CNY(100);
+const usd = new USD(100);
+
+const addCNY = (source: CNY, input: CNY) => new CNY(source.value + input.value);
+
+addCNY(cny, cny);
+```
+
+通过这种方式， 我们可以在运行时添加更多的检查逻辑， 同时在类型层面也得到了保障。
+
+这两种方式本质都是通过非公开（即 `private` / `protected`） 的额外属性实现了类型信息的附加，
+从而使得结构化类型系统将结构一致的两个类型也视为不兼容。
+
+## 类型、类型系统、类型检查
+
+对于类型、类型系统、类型检查， 你可以认为它们是不同的概念.
+
+### 类型
+
+限制了数据的可用操作、意义、允许的值的集合， 总的来说就是**访问限制**与**赋值限制**。 在 typescript 中即是
+原始类型、 对象类型、 函数类型、 字面量类型 等基础类型， 以及 类型别名、 联合类型等经过类型编程后得到的类型。
+
+### 类型系统
+
+一组为变量、函数等结构分配、实施类型的规则， 通过显示地指定或类型推导来分配类型。 同时类型系统也定义了如何判断类型之间的兼容性：
+在 typescript 中即是 结构化类型系统。
+
+### 类型检查
+
+确保**类型遵循类型系统下的类型兼容性**， 对于静态类型语言， 在**编译时**进行， 而对于动态语言， 则在**运行时**进行。 typescript 就是在编译时进行类型检查的。
+
+一个需要注意的地方是， 静态类型与动态类型指的是**类型检查发生的时机**, 并不等于这门语言的类型能力。 比如说
+javascript 实际上是动态类型语言， 它的类型检查发生在运行时.
+
+另外一个静态类型与动态类型的重要区别体现在变量赋值时， 如在 typescript 中无法给一个声明为 number 的变量使用字符串赋值， 因为这个变量在声明时的类型就已经确定了。
+而在 javascript 中则没有这个限制， 你可以随时切换一个变量的类型
+
+另外， 在编程语言中还有 强类型、弱类型的概念， 它们体现在对变量类型检查的程度， 如在 javascript 中可以实现 `'-1' - 1` 这样神奇的运算（通过隐式转换）， 这其实
+就是弱类型语言的显著特点之一。

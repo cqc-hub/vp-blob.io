@@ -1,5 +1,13 @@
 ---
 sidebar: 'auto'
+
+prev:
+ text: e.any | unknown | never
+ link: /typescript/e.any | unknown | never.html
+
+next:
+ text: g.类型工具(part 2)
+ link: /typescript/g.类型工具(part 2).html
 ---
 
 #

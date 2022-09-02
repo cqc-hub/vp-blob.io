@@ -1,5 +1,13 @@
 ---
 sidebar: 'auto'
+
+prev:
+ text: f.类型工具(part 1)
+ link: /typescript/f.类型工具(part 1).html
+
+next:
+ text: h.泛型
+ link: /typescript/h.泛型.html
 ---
 
 #

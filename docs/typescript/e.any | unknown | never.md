@@ -1,5 +1,13 @@
 ---
 sidebar: 'auto'
+
+prev:
+ text: d.函数重载与Class
+ link: /typescript/d.函数重载与Class.html
+
+next:
+ text: f.类型工具(part 1)
+ link: /typescript/f.类型工具(part 1).html
 ---
 
 #

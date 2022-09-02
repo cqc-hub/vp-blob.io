@@ -1,5 +1,13 @@
 ---
 sidebar: 'auto'
+
+prev:
+ text: c.字面量类型与枚举
+ link: /typescript/c.字面量类型与枚举.html
+
+next:
+ text: e.any | unknown | never
+ link: /typescript/e.any | unknown | never.html
 ---
 
 #
