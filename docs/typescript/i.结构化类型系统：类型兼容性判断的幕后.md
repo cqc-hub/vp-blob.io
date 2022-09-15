@@ -3,6 +3,10 @@ sidebar: auto
 prev:
  text: h.泛型
  link: /typescript/h.泛型.html
+
+next:
+ text: j.类型系统层级
+ link: /typescript/j.类型系统层级.html
 ---
 
 #
