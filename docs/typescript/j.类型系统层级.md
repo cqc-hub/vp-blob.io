@@ -3,6 +3,10 @@ sidebar: auto
 prev:
  text: i.结构化类型系统：类型兼容性判断的幕后
  link: /typescript/i.结构化类型系统：类型兼容性判断的幕后.html
+
+next:
+ text: 条件类型与infer
+ link: /typescript/k.条件类型与infer.html
 ---
 
 # 类型系统层级
@@ -278,3 +282,89 @@ type TypeChain = never extends 'cqc'
 
 
 ```
+
+其返回的结果为 8 ，也就意味着所有结果都成立. 结合上面的结构化类型系统与类型系统设定， 我们还可以构建一条更长的类型层级链：
+
+```typescript
+type VerboseTypeChain = never extends 'cqc'
+ ? 'cqc' extends 'cqc' | '233'
+  ? 'cqc' | '233' extends string
+   ? string extends {}
+    ? string extends String
+     ? String extends {}
+      ? {} extends object
+       ? object extends {}
+        ? {} extends Object
+         ? object extends Object
+          ? Object extends object
+           ? Object extends any
+            ? Object extends unknown
+             ? any extends unknown
+              ? unknown extends any
+               ? 8
+               : 7
+              : 6
+             : 5
+            : 4
+           : 3
+          : 2
+         : 1
+        : 0
+       : -1
+      : -2
+     : -3
+    : -4
+   : -5
+  : -6
+ : -7; // 8
+
+```
+
+## 其他比较场景
+
+除了我们上面提到的类型比较， 其实还存在着一些比较情况
+
+- 对于基类与派生类， 通常情况下**派生类会完全保留基类的结构**， 而只是自己新增新的属性和方法。 在结构化类型的比较下， 其类型必然存在子类型关系。更不用说派生类本身就是 extends 基类得到的。
+
+- 联合类型的判断， 前面我们只是判断联合类型的单个成员， 那如果是多个成员呢？
+
+```typescript
+type Result36 = 1 | 2 | 3 extends 1 | 2 | 3 | 4 ? 1 : 2; // 1
+type Result37 = 2 | 4 extends 1 | 2 | 3 | 4 ? 1 : 2; // 1
+type Result38 = 1 | 2 | 5 extends 1 | 2 | 3 | 4 ? 1 : 2; // 2
+type Result39 = 1 | 5 extends 1 | 2 | 3 | 4 ? 1 : 2; // 2
+
+```
+
+实际上， 对于联合类型的比较， 我们只需要比较**一个联合类型成员是否可以被视为另一个联合类型的子集**， 即 **这个联合类型中所有成员在另一个联合类型中都能找到**。
+
+- 数组和元组
+
+数组和元组是一个比较特殊的部分， 直接上例子：
+
+```typescript
+type Result40 = [number, number] extends number[] ? 1 : 2; // 1
+type Result41 = [number, string] extends number[] ? 1 : 2; // 2
+type Result42 = [number, string] extends (number | string)[] ? 1 : 2; // 1
+type Result43 = [] extends number[] ? 1 : 2; // 1
+type Result44 = [] extends unknown[] ? 1 : 2; // 1
+type Result45 = number[] extends (number | string)[] ? 1 : 2; // 1
+type Result46 = any[] extends number[] ? 1 : 2; // 1
+type Result47 = unknown[] extends number[] ? 1 : 2; // 2
+type Result48 = never[] extends number[] ? 1 : 2; // 1
+
+```
+
+## 总结
+
+> TopType > 顶级原型 > 装箱类型 > 基础类型（拆箱类型） > 对应字面量类型 > BottomType
+>
+> TopType: any 、 unknown
+>
+> 顶级原型: Object
+>
+> 装箱类型: String 、 Boolean 、 Number
+>
+> 基础类型（拆箱类型): string 、 boolean 、 number
+>
+> 对应字面量类型: 'cqc' 、 true 、 233
