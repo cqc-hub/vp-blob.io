@@ -226,7 +226,7 @@ type t2 = PropType<
   name: string;
   age: number;
  },
- 'age' | 'name'
+'age' | 'name'
 >; // string | number
 
 
@@ -235,3 +235,140 @@ type t3 = ReverseKeyValue<{
 }>; // { cqc: 'name' }
 
 ```
+
+在这里， 为了体现 infer 作为类型工具的属性， 我们结合了索引类型与映射类型， 以及使用 `& string` 来确保属性名作为 string 类型的小技巧。
+
+为什么需要这个小技巧， 如果不使用会有什么问题吗？
+
+```typescript
+type ReverseKeyValue<T extends Record<string, string>> = T extends Record<
+ infer K,
+ infer V
+>
+ ? Record<V, K>   // type 'V' does not satisfy the constraint 'string | number | symbol'.ts(2344)
+ : never;
+
+```
+
+明明约束已经声明了 V 的类型是 string 为什么还是报错了
+
+这是因为， 泛型参数 V 的来源是从键值类型推导出来的， typescript 中这样对键值类型进行 infer 推导， 将导致类型信息丢失， 而不满足索引签名类型只允许 `string | number | symbol` 的要求。
+
+还记得映射类型的判断条件吗？
+ 需要同时满足其两端的类型， 我们使用 `V & string`  这一形式，就确保了最终符合条件的类型参数 V 一定回满足 `string | never` 这个类型， 因此可以被视为合法的索引签名类型。
+
+### Promise
+
+```typescript
+type PromiseValue<T> = T extends Promise<infer V> ? V : T;
+
+type r1 = PromiseValue<Promise<number>>; // number
+type r2 = PromiseValue<Promise<string>>; // string
+
+```
+
+就像条件类型可以嵌套一样， infer 关键字也经常被使用在嵌套的场景中， 包括对类型结构深层信息的提取， 以及对提取到类型信息的筛选等。 比如上面的 PromiseValue， 如果传入了一个嵌套的 Promise 类型就失效了：
+
+这时候我们就需要 进行嵌套的提取了：
+
+```typescript
+type PromiseValue<T> = T extends Promise<infer R>
+ ? R extends Promise<infer N>
+  ? N
+  : R
+ : T;
+```
+
+当然， 这个时候更应该使用递归来处理任意的嵌套深度：
+
+```typescript
+type PromiseValue<T> = T extends Promise<infer V> ? PromiseValue<V> : T;
+
+type r = PromiseValue<Promise<Promise<Promise<string>>>>; // string
+
+```
+
+条件类型在泛型的基础上支持了基于类型信息的动态条件判断， 但无法直接消费填充类型信息， 而 infer 关键字 则为他补上了这一部分能力， 让我们可以进行更多奇妙的类型操作， typescript 中内置的工具类型中还有一些基于 infer 关键字的应用， 后面我们会在内置工具类型讲解中了解它们的具体实现
+
+## 分布式条件类型
+
+分布式条件类型听起来真的很高级， 但这里和分布式服务并不是一回事。 **分布式条件类型， 也称作条件类型的分布式特性**， 只不过是条件类型在满足一定情况下会执行的逻辑而已， 直接上例子：
+
+```typescript
+type Condition<T> = T extends 1 | 2 | 3 ? T : never;
+
+type r1 = Condition<1 | 2 | 3 | 4 | 5>; // 1 | 2 | 3
+
+type r2 = 1 | 2 | 3 | 4 | 5 extends 1 | 2 | 3 ? 1 | 2 | 3 | 4 | 5 : never; // never
+
+```
+
+这个例子可能让你充满了疑惑， 某些地方似乎和我们学习的知识并不一样？ 先不说这两个理论上应该执行结果一致的类型别名， 为什么在 r1 中诡异的返回了一个联合类型？
+
+仔细观察就会发现， 唯一的差异就是在 r1 中， 进行判断的联合类型被作为泛型参数传入给另一个独立的类型别名， 而 r2 中直接对这两者进行判断。
+
+> 记住第一个差异： <a-mark>是否通过泛型参数传入</a-mark>。
+
+我们在看一个例子：
+
+```typescript
+type Naked<T> = T extends boolean ? 'Y' : 'N';
+type Wrapped<T> = [T] extends [boolean] ? 'Y' : 'N';
+
+type r3 = Naked<number | boolean>; // 'N' | 'Y'
+type r4 = Wrapped<number | boolean>; // 'N'
+
+```
+
+现在我们都是通过泛型参数传入了， 但诡异的事情又发生了， 为什么第一个还是个联合类型？ 第二个倒是好理解一些 元组的成员有可能是数字类型， 显然和 `[boolean]` 不兼容。
+
+ 在仔细观察着两个例子你会发现， 它们唯一的差异就是条件类型中的 **泛型参数是否被数组包裹了**
+
+> 第二个差异: <a-mark>泛型参数是否被数组包裹了</a-mark>
+
+同时, 你会发现在 r3 的判断中， 其联合类型的两个分支， 恰好对应分别使用 number 和 boolean 其作为条件类型判断时候的结果。
+
+把上面的线索梳理一下， 其实我们就打值得到了条件类型分布式起作用的条件。
+
+- 首先， **你的类型参数需要是一个联合类型。**
+- 其次， **类型参数需要通过泛型参数的方式传入， 而不能直接在外部进行判断（类似 r2）**
+- 最后， **条件类型中的泛型参数不能被包裹**
+
+而条件类型分布式特性会产生的效果也很明显了， 即将这个联合类型拆开来， 每个分支分别进行一次条件类型判断， 再将最后的结果合并起来（如 Naked 中）。 如果在严谨一些， 其实我们就得到了官方的解释：
+
+**对于裸类型参数的检查类型， 条件类型会在实例化时期自动分发到联合类型上**。
+
+这里的自动分发， 我们可以这么理解：
+
+```typescript
+type Naked<T> = T extends boolean ? 'Y' : 'N';
+
+// (number extends boolean ? 'Y' : 'N') | (boolean extends boolean ? 'Y' : 'N')
+type r3 = Naked<number | boolean>; // 'N' | 'Y'
+```
+
+写成伪代码其实就是这样的
+
+```typescript
+const Res3 = [];
+
+for(const input of [number, boolean]) {
+  if (input extends boolean) {
+    Res3.push('Y');
+  } else {
+    Res3.push('N');
+  }
+}
+```
+
+这里的裸类型参数， 其实指的就是泛型参数是否完全裸露， 我们上面使用数组包裹泛型参数只是其中一种方式， 比如还可以这么做：
+
+```typescript
+type NoDistribute<T> = T & {};
+type Wrapped<T> = NoDistribute<T> extends [boolean] ? 'Y' : 'N';
+
+type r = Wrapped<number | boolean>; // 'N'
+
+```
+
+需要注意的是， 我们并不是智慧通过裸泛型参数， 来确保分布式特性能够发生。 在某些情况下， 我们也需要包括泛型参数来警用掉分布式特性。 最常见的场景也许还是联合类型的判断， 即我们不希望进行联合类型的兼容性判断，就像在最初的 r2 中那样.
