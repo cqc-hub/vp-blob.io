@@ -22,7 +22,7 @@ export default defineUserConfig({
       'link',
       {
         rel: 'icon',
-        href: '/image/shaox_circle_绿色能量@2x.png',
+        href: '/image/favicon.ico',
       },
     ],
   ],
@@ -79,7 +79,7 @@ export default defineUserConfig({
   ],
 
   theme: defaultTheme({
-    logo: '/image/shaox_circle_绿色能量@2x.png',
+    logo: '/image/favicon.ico',
     navbar,
     sidebar,
     sidebarDepth: 4,

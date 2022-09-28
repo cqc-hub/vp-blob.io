@@ -1,6 +1,6 @@
 ---
 home: true
-heroImage: /image/shaox_circle_绿色能量@2x.png
+heroImage: /image/favicon.ico
 heroText: VuePress blob
 tagline: 生活不易，且行且过
 
