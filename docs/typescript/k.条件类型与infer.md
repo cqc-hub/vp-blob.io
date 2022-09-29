@@ -372,3 +372,109 @@ type r = Wrapped<number | boolean>; // 'N'
 ```
 
 需要注意的是， 我们并不是智慧通过裸泛型参数， 来确保分布式特性能够发生。 在某些情况下， 我们也需要包括泛型参数来警用掉分布式特性。 最常见的场景也许还是联合类型的判断， 即我们不希望进行联合类型的兼容性判断，就像在最初的 r2 中那样.
+
+```typescript
+type CompareUnion<T, U> = [T] extends [U] ? true : false;
+
+type r1 = CompareUnion<1 | 2, 1 | 2 | 3>; // true
+type r2 = CompareUnion<1 | 2, 1>; // false
+
+```
+
+通过将参数与条件都包裹起来的方式， 我们对联合类型的比较就变成了数组成员类型的比较，
+在此时就会严格遵守类型层级一文中联合类型的类型判断了（子集为其子类型）
+
+另外一种情况则是，当我们想判断一个类型是否为 never时候， 也可以通过类似的手段：
+
+```typescript
+type IsNever<T> = T extends never ? true : false;
+type IsNeverRight<T> = [T] extends [never] ? true : false;
+
+type r1 = IsNever<never>; // never
+type r2 = IsNever<never>; // true
+
+```
+
+这里的原因其实并不是因为分布式条件类型。 我们此前在类型层级中了解过， 当条件的判断参数为 any， 会直接返回条件类型两个结果的联合类型。而在这里其实类似， 当通过泛型传入的参数为 never， 则会直接返回 never.
+
+需要注意的是这里的 never 和 any 的情况并不完全相同， any 在直接**作为判断参数时、作为泛型参数时**都会产生这一效果：
+
+```typescript
+// 直接使用， 返回结果集的联合类型
+type t1 = any extends string ? 1 : 2; // 1 | 2
+
+// 通过泛型参数传入， 同样返回结果集的联合类型
+type t2<T> = T extends string ? 1 : 2;
+type t2Res = t2<any>; // 1 | 2
+
+// 如果判断条件是 any 那么判断仍然会进行
+type s1 = any extends any ? 1 : 2; // 1
+
+type s2<T> = T extends any ? 1 : 2;
+type s2Res = s2<any>; // 1
+
+```
+
+而 never 仅在作为泛型参数时才会产生:
+
+```typescript
+// 直接使用， 判断仍然会进行
+type t3 = never extends string | number | boolean ? 1 : 2; // 1
+
+// 当通过泛型参数传入， 会跳过判断 直接返回 never
+type t4<T> = T extends string ? 1 : 2;
+type t4Res = t4<never>; // never
+
+// 如果判断条件时 never， 还是仅在作为泛型参数时候才跳过判断
+type s3 = never extends never ? 1 : 2; // 1
+
+type s4<T> = T extends never ? 1 : 2;
+type s4Res = s4<never>; // never
+```
+
+这里的 any、 never 两种情况都不会实际地执行条件类型， 而在这里我们跳过包裹的方式让它不再是一个孤零零的 never， 也就可以去执行判断了。
+
+之所以分布式条件类型要这么设计， 我个人理解主要是为了处理联合类型这种情况。 就像我们到现在为止的伪代码都一直使用数组来表达联合类型一样， 在类型世界中联合类型就像是一个集合一样。 通过使用分布式条件类型， 我们能轻易地进行集合之间的运算， 比如交集：
+
+```typescript
+// 与 A & B 效果一致
+type Intersection<A, B> = A extends B ? A : never;
+
+type Intersection1<A, B> = [A] extends [B] ? A : never;
+
+type IntersectionRes = Intersection<1 | 2 | 3, 2 | 3>; // 2 | 3
+type IntersectionRes = Intersection1<1 | 2 | 3, 1 | 2 | 3 | 4>; // 1 | 2 | 3 (即 A)
+```
+
+进一步的， 当联合类型的组成是一个对象的属性名（`keyof IObject`）, 此时对这样两个类型集合进行处理， 得到属性名的交集， 那我们就可以在此基础上获得两个对象结构的交集。 除此之外， 还有许多相对复杂的场景可以降纬到类型集合， 即联合类型的层面， 然后我们就可以愉快地使用分布式条件类型进行各种处理了。
+
+## 扩展
+
+  上面我们通过 hack 的手段得到了 IsNever, 那你一定会想是否能实现 IsAny 与 IsUnknown ? 当然可以， 不过具体实现要稍微复杂一些， 并且并不完全依赖分布式条件类型
+
+### IsAny
+
+  上面已经提到了不能通过 `any extends type` 这样的形式来来判断一个类型是否 any。 而是要利用 any 的另一个特性： 深化万千：
+
+```typescript
+type IsAny<T> = 'cqc' extends 'qc' & T ? true : false;
+```
+
+`'cqc' extends 'qc'` 必然不成立， 而交叉类型 `'qc' & T` 也很奇怪， 他意味着同时符合字面量类型 ‘cqc’ 和 字面量类型 'qc' 和另外一个类型 T. 在学习交叉类型时候我们已经了解到， 对于 'cqc' 这样的字面量类型， 只有传入其本身， 对应的原始类型, 包涵其本身的联合类型， 才能得到一个有意义的值， 并且这个值一定是它本身:
+
+```typescript
+type t1 = 1 & (0 | 1); // 1
+type t2 = 1 & number; // 1
+type t3 = 1 & 1; // 1
+type t4 = 1 & unknown;// 1
+```
+
+因为交叉类型就像**短板效应一样， 其最终计算的类型是由最短的那根木板**， 也就是最精确的那个类型决定的。 这样看， 无论如何 `'cqc' extends 'qc'` 都不会成立。
+
+但作为代表任意类型的 any， 他的存在就像是开天辟地的基本规则一样， 如果交叉类型中一个成员是 any， 那么短板效应就失效了， 此时最终类型必然是 any。
+
+```typescript
+type t5 = 1 & any; // any
+```
+
+### IsUnknown
