@@ -24,9 +24,9 @@ features:
 footer: MIT Licensed | Copyright © 2018-present Evan You
 ---
 
-# 你好，世界！
+# 你好，世界
 
-## We can hide anything, even code!
+## We can hide anything, even code
 
 | First Header | Second Header |
 | ------------ | ------------- |
