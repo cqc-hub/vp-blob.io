@@ -4,6 +4,10 @@ sidebar: auto
 prev:
  text: j.类型系统层级
  link: /typescript/j.类型系统层级.html
+
+next:
+ text: 工具类型
+ link: /typescript/l.工具类型.html
 ---
 
 #
@@ -478,3 +482,14 @@ type t5 = 1 & any; // any
 ```
 
 ### IsUnknown
+
+`unknown extends T` 时仅有 T 为 any 或者 unknown 时候， 这时候只需要直接判断 T 是不是 any 就好了:
+
+```typescript
+type IsUnknown<T> = T extends unknown
+ ? IsAny<T> extends true
+  ? false
+  : true
+ : false;
+
+```

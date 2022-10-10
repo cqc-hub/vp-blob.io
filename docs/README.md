@@ -2,7 +2,7 @@
 home: true
 heroImage: /image/favicon.ico
 heroText: VuePress blob
-tagline: 生活不易，且行且过
+tagline: 再坚持一下，之后你想要的，岁月都会给你
 
 actions:
   - text: 快速上手
