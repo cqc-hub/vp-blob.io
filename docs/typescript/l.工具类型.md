@@ -1,8 +1,8 @@
 ---
 sidebar: auto
-# prev:
-#  text: i.结构化类型系统：类型兼容性判断的幕后
-#  link: /typescript/i.结构化类型系统：类型兼容性判断的幕后.html
+next:
+ text: m.反向类型推导
+ link: /typescript/m.反向类型推导.html
 
 prev:
  text: 条件类型与infer

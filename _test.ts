@@ -1,8 +1,4 @@
-type FirstArrayItemType<T extends any[]> = T extends [
-	infer P extends string,
-	...any[]
-]
-	? P
-	: never;
+declare const list: any[];
 
-type a = FirstArrayItemType<[233, 'cqc']>;
+
+list.map(() => {})
