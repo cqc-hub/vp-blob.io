@@ -89,74 +89,178 @@ type Mutable<T> = {
 }
 ```
 
-## 结构工具类型
-
-这一部分的工具类型主要是使用 **条件类型, 映射类型, 索引类型**.
-
-结构工具类型其实又可以分为两类, 结构声明 和 结构处理.
-
-结构声明工具类型即快速声明一个结构, 比如内置类型中的 Record:
+另外， 你可能发现 Pick 会约束第二个参数的联合类型来自于对象属性， 而 Omit 并不这么要求？ 官方的考量是， 可能会出现这么一种情况：
 
 ```typescript
-type Record<K extends keyof any, T> = {
-  [P in K]: T
+type Omit1<T, K> = Pick<T, Exclude<keyof T, K>>;
+type Omit2<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
+// 这里就不能使用严格 Omit 了
+declare function combineSpread<T1, T2>(
+ obj: T1,
+ otherObj: T2,
+ rest: Omit1<T1, keyof T2>
+): void;
+
+type Point3d = { x: number; y: number; z: number };
+
+declare const p1: Point3d;
+
+// 能检测出错误了 rest 中少了 z
+combineSpread(p1, { x: 23 }, { y: 33 });
+
+```
+
+如果在这里我们使用 `keyof otherObj` 去剔除 obj, 此时如果声明约束反而不符合预期。
+
+## 集合根据类型
+
+在数学概念中， 对于两个集合来说， 通常存在 **交集、并集、差集、补集** 这几个情况。
+
+- 并集: 两个集合的合并， 合并时候重复元素只会保留一份 （这也是联合类型的表现行为）
+- 交集: 两个集合的相交部分， 即同时存在于这两个集合内的元素的集合
+- 差集: 对于 A、B 两个集合来说， A 相对于 B 的差集 即为 **A 中独有而 B 中不存在的元素** 的组成的集合， 或者说 **A 中剔除了 B 中也存在的元素以后剩下的部分**
+- 补集: 补集是差集的特殊情况， 此时**集合 B 为集合 A 的子集**， 这种情况下 **A 相对于 B 的补集 + B = 完整的集合A**
+
+内置工具中提供了交集与差集的实现
+
+```typescript
+type Extract<T, U> = T extends U ? T : never;
+type Exclude<T, U> = T extends U ? never: T;
+```
+
+这里的具体实现其实就是条件类型的分布式特性， **即当 T、U 都是联合类型（视为一个集合）时候， T 的成员会依次被拿出来进行 `extends U ? T1 : T2` 的计算， 然后将最终的结果再合并成一个联合类型**
+
+比如对于交集 Extract， 其运行逻辑是这样的：
+
+```typescript
+type a = 1 | 2 | 3;
+type b = 1 | 2 | 4;
+
+type ExtractA = Extract<a, b>; // 1 | 2
+
+// 实际的计算
+type ExtractB = 1 extends b
+ ? 1
+ : never | 2 extends b
+ ? 2
+ : never | 3 extends b
+ ? 3
+ : never;
+
+```
+
+除了差集和交集， 我们也可以很容易实现并集和补集：
+
+```typescript
+// 并集
+type Concurrence<A, B> = A | B;
+
+// 交集
+type Intersection<A, B> = A extends B ? A : never;
+
+// 差集
+type Difference<A, B> = A extends B ? never : A;
+
+// 补集
+type Complement<A, B extends A> = Difference<A, B>;
+
+
+```
+
+补集基于差集实现， 只需要约束**集合B 为 集合A 的子集 即可**。
+
+内置工具类型中还有一个场景比较明确的集合工具类型：
+
+```typescript
+type NonNullable<T> = T extends null | undefined ? never : T;
+
+type _NotNullable<T> = Difference<T, null | undefined>
+```
+
+很明显， 他的本质就是集合 T 相对于 `null | undefined` 的差集， 因此我们可以使用之前的差集来进行实现。
+
+在基于分布式条件类型的工具类型中， 其实也存在正反工具类型， 但**并不都是简单地替换条件类型结果两端**， 如交集和补集就只是简单替换了结果， 但二者的作用完全不同。
+
+联合类型中会自动合并相同的元素， 因此我们可以默认这里指的类型集合全部都是类似 Set 那样的结构， 不存在重复元素。
+
+## 模式匹配工具类型
+
+这一部分主要使用 **条件类型 与 infer 关键字**。
+
+在之前我们已经差不多了解了 infer 关键字的作用， 而更严格地说 infer 其实代表了 一种 **模式匹配** 的思路。 如正则表达式、 Glob 中都体现了这一概念。
+
+首先是对函数类型签名的模式匹配:
+
+```typescript
+type FunctionType = (...args: any[]) => any;
+
+type Parameters<T extends FunctionType> = T extends (...args: infer P) => any ? T : never;
+type ReturnType<T extends FunctionType> = T extends (...args: any[]) => infer P ? P : never;
+
+```
+
+根据 infer 的位置不同， 我们就能获取到不同位置的类型， 在函数这里则是参数类型与返回值类型。
+
+我们还可以更进一步， 比如只匹配第一个参数类型
+
+```typescript
+type FirstParams<T extends FunctionType> = T extends (arg: infer P, ...rest: any[]) => any ? P : never;
+```
+
+除了对函数类型进行模式匹配， 内置工具类型中还有一组对 Class 进行模式匹配的工具类型：
+
+```typescript
+type ClassType = abstract new (...args: any) => any;
+
+type ConstructorParameters<T extends ClassType> = T extends abstract new (
+ ...args: infer P
+) => any
+ ? P
+ : never;
+
+type InstanceType<T extends ClassType> = T extends abstract new (
+ ...args: any
+) => infer P
+ ? P
+ : any;
+
+```
+
+Class 的通用类型签名可能看起来比较奇怪， 但实际上它就是声明了可实例化（new）与可抽象（abstract） 罢了。 我们也可以使用接口来进行声明：
+
+```typescript
+interface ClassType<TInstance = any> {
+  new (...args: any[]): TInstance;
 }
 ```
 
-其中, `K extends keyof any` 即为键的类型, 这里使用 `extends keyof any` 标明, 传入的 K 可以是单个类型, 也可以是联合类型, 而 T 即为 属性的类型.
+对 Class 的模式匹配思路类似于函数， 或者说这是一个通用思路， 即基于放置位置的匹配。 放在参数部分， 那就是构造函数的参数类型， 放在返回值部分， 那当然就是 Class 的实例类型了。
+
+## 拓展
+
+在某些时候， 我们可能对 infer 提取的类型值有些要求， 比如我只想要数组的第一个为字符串的成员， 如果第一个成员不是字符串， 那我就不要了。
 
 ```typescript
-type R1 = Record<string, unknown>;
-type R2 = Record<string, any>;
-type R3 = Record<string | number, any>;
+type FirstArrayItemType<T extends any[]> = T extends [infer P, ...any[]]
+ ? P extends string
+  ? P
+  : never
+ : never;
+
 ```
 
-其中, `Record<string, unknown>` 和 `Record<string, any>` 是日常使用较多的形式, 通常我们使用这两者来代替 object.
+看起来好像能满足需求， 但程序员总是精益求精的， 泛型可以声明约束， 只允许传入特定的类型， 那么 infer 中能否也添加约束， 只提取特定的类型？
 
-在一些工具类库源码中其实还存在类似的结构声明工具类型, 如:
+typescript 4.7 中就支持了 infer 约束功能来实现**对特定类型的提取**， 比如上面的例子可以改写成这样：
 
 ```typescript
-type Dictionary<T> = {
-  [index: string]: T;
-}
+type FirstArrayItemType<T extends any[]> = T extends [
+ infer P extends string,
+ ...any[]
+]
+ ? P
+ : never;
+  ```
 
-type NumbericDictionary<T> = {
-  [index: number]: T;
-}
-```
-
-Dictionary(字典) 结构只需要一个作为属性类型的泛型参数即可.
-
-而对于结构处理工具类型, 在 typescript 中主要是 Pick, Omit 两位选手:
-
-```typescript
-type Pick<T, K in keyof T> = {
-  [P in K]: T[P];
-}
-
-type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
-```
-
-首先来看 Pick, 它接受了两个泛型参数, T 即是我们会进行结构处理的原类型(一般是对象类型), 而 K 则被约束为 T 类型的键名联合类型. 由于泛型约束是立即推导填充的, 即你为第一个泛型参数传入 Foo 类型之后, K 的约束条件会立刻被填充, 因此在你输入 K 时候回货的代码提示.
-
-而对于 Omit 类型, 看名字其实就能 get 到它是 Pick 的反向实现: **Pick 是保留这些传入的键, 移除其他, Omit 则是移除传入的键**
-
-它的实现看起来很奇怪:
-
-```typescript
-type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-```
-
-首先我们能看出, Omit 是基于 Pick 实现的, 这也是 typescript 中成对工具类型的另一种实现方式.
-上面的 Partial 与 Required 使用类似的结构, 在关键位置使用一个相反操作来实现反向;
-而这里的 Omit 类型则是基于 Pick 的实现, 也就是**反向工具类型基于正向工具类型实现**.
-
-首先接受的泛型参数类型, 也是一个类型与联合类型, 但是在将这个联合类型传入给 Pick 时候多了一个 `Exclude<A, B>` 的结构就是联合类型 A 中 不存在于 B 中的部分:
-
-```typescript
-type T1 = Exclude<1, 2>; // 1
-type T2 = Exclude<1 | 2, 1>; // 2
-type T3 = Exclude<1 | 2 | 3, 2 | 3>; // 1
-```
-
-因此, 在这里 `Exclude<keyof T, K>` 其实就是 T 的键名联合类型中剔除了 K 的部分, 将其作为 Pick 的键名, 就实现了一部分类型剔除的效果.
+实际上， infer + 约束的场景是非常常见的， 尤其是在某些连续嵌套的情况下， 一层层的 infer 提取在筛选会严重地影响代码的可读性， 而 infer 约束这一功能无疑带来了更简洁直观的类型编程代码。
