@@ -4,9 +4,9 @@ prev:
  text: l.工具类型
  link: /typescript/l.工具类型.html
 
-# prev:
-#  text: 条件类型与infer
-#  link: /typescript/k.条件类型与infer.html
+next:
+ text: n.协变与逆变的比较
+ link: /typescript/n.协变与逆变的比较.html
 
 
 ---
