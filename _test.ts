@@ -1,35 +1,46 @@
-type Flatten<T> = {
-	[K in keyof T]: T[K];
-};
+interface IObj {
+	name: 'ccc';
+	age: number;
+	fav: {
+		game: {
+			projectZero: string;
+			hh: {
+				p: string;
+				w: '233';
+			};
+		};
 
-type FuncStruct = (...args: any[]) => any;
+		fu: number;
+	};
+}
 
-type FunctionKeys<T extends object> = {
-	[K in keyof T]: T[K] extends FuncStruct ? K : never;
+type StrictConditional<A, B, Resolved, Rejected, Fallback = never> = [
+	A
+] extends [B]
+	? [B] extends [A]
+		? Resolved
+		: Rejected
+	: Fallback;
+
+type StrictValueTypeFilter<
+	T extends object,
+	ValueType,
+	Positive extends boolean = true
+> = {
+	[Key in keyof T]-?: StrictConditional<
+		ValueType,
+		T[Key],
+		Positive extends true ? Key : never,
+		Positive extends true ? never : Key,
+		Positive extends true ? never : Key
+	>;
 }[keyof T];
 
-type Tmp<T extends object> = {
-	[K in keyof T]: T[K] extends FuncStruct ? K : never;
-};
+type StrictPickByValueType<T extends object, ValueType> = Pick<
+	T,
+	StrictValueTypeFilter<T, ValueType>
+>;
 
-type r = Tmp<{
-	foo: () => void;
-	bar(): number;
-	baz: () => string;
-	a: string;
-}>;
+type t = StrictPickByValueType<IObj, number>;
 
-type r1 = FunctionKeys<{
-	foo: () => void;
-	bar(): number;
-	baz: () => string;
-	a: string;
-}>;
-
-type ResEqual = {
-	foo: 'foo';
-	bar: 'bar';
-	baz: 'baz';
-};
-
-type r2 = ResEqual[keyof ResEqual];
+// declare var test: t;

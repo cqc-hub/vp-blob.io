@@ -190,3 +190,34 @@ type WhatWillWeGetEqual1 = Res['foo' | 'bar' | 'baz'];
 type WhatWillWeGetEqual2 = Res['foo'] | Res['bar'] | Res['baz'];
 type WhatWillWeGetEqual3 = 'foo' | 'bar' | 'baz' | never;
 ```
+
+TypeFilter:
+
+```typescript
+type StrictConditional<A, B, Resolved, Rejected, Fallback = never> = [
+ A
+] extends [B]
+ ? [B] extends [A]
+  ? Resolved
+  : Rejected
+ : Fallback;
+
+type StrictValueTypeFilter<
+ T extends object,
+ ValueType,
+ Positive extends boolean = true
+> = {
+ [Key in keyof T]-?: StrictConditional<
+  ValueType,
+  T[Key],
+  Positive extends true ? Key : never,
+  Positive extends true ? never : Key,
+  Positive extends true ? never : Key
+ >;
+}[keyof T];
+
+type StrictPickByValueType<T extends object, ValueType> = Pick<
+ T,
+ StrictValueTypeFilter<T, ValueType>
+>;
+```
