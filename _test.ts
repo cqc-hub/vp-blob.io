@@ -1,46 +1,20 @@
-interface IObj {
-	name: 'ccc';
-	age: number;
-	fav: {
-		game: {
-			projectZero: string;
-			hh: {
-				p: string;
-				w: '233';
-			};
-		};
+type FunctionType = (...args: any) => any;
 
-		fu: number;
-	};
-}
+type LastParameter<T extends FunctionType> = T extends (arg: infer P) => any
+	? P
+	: T extends (...args: infer R) => any
+	? R extends [...any, infer Q]
+		? Q
+		: never
+	: never;
 
-type StrictConditional<A, B, Resolved, Rejected, Fallback = never> = [
-	A
-] extends [B]
-	? [B] extends [A]
-		? Resolved
-		: Rejected
-	: Fallback;
+type a = (name: string) => void;
+type b = (name: string, age: number) => void;
+type c = () => Promise<string>;
 
-type StrictValueTypeFilter<
-	T extends object,
-	ValueType,
-	Positive extends boolean = true
-> = {
-	[Key in keyof T]-?: StrictConditional<
-		ValueType,
-		T[Key],
-		Positive extends true ? Key : never,
-		Positive extends true ? never : Key,
-		Positive extends true ? never : Key
-	>;
-}[keyof T];
+type a1 = LastParameter<a>;
+type b1 = LastParameter<b>;
+type c1 = LastParameter<c>;
 
-type StrictPickByValueType<T extends object, ValueType> = Pick<
-	T,
-	StrictValueTypeFilter<T, ValueType>
->;
+type d = Awaited<c>;
 
-type t = StrictPickByValueType<IObj, number>;
-
-// declare var test: t;

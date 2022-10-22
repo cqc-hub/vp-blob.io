@@ -221,3 +221,223 @@ type StrictPickByValueType<T extends object, ValueType> = Pick<
  StrictValueTypeFilter<T, ValueType>
 >;
 ```
+
+## 基于结构的互斥工具类型
+
+先来看看如何声明一个接口， 它要么拥有 vipExpires， 要么拥有 promotionUsed 字段， 而不能同时拥有这两个字段， 你可能首先想到联合类型？
+
+```typescript
+interface VIP {
+ vipExpires: number;
+}
+
+interface CommonUser {
+ promotionUsed: boolean;
+}
+
+type User = VIP | CommonUser;
+
+```
+
+很遗憾， 这种方式并不会约束 “不能同时拥有两个字段” 这个条件
+
+为了表示不能同时拥有， 实际上我们应该使用 never 类型来标记一个属性。 这里我们直接看完整实现：
+
+```typescript
+interface CommonUser {
+ promotionUsed: boolean;
+}
+
+type Without<T, U> = {
+ [P in Exclude<keyof T, keyof U>]?: never;
+};
+
+type XOR<T, U> = (Without<T, U> & U) | (Without<U, T> & T);
+
+type XORUser = XOR<VIP, CommonUser>;
+
+// 报错， 不允许同时拥有
+const obj: XORUser = {
+ vipExpires: 23,
+ promotionUsed: false
+};
+```
+
+对 Without 进一步展开可以看到， 他其实就是声明了一个不变的原属性 + 为never的其他属性接口
+
+```typescript
+type Temp1 = Flatten<Without<VIP, CommonUser>>; // { vipExpires?: never }
+type Temp2 = Flatten<Temp1 & CommonUser>; // { promotionUsed: boolean; vipExpires?: undefined }
+```
+
+在通过联合类型的合并， 这样一来 XORUser 就满足了 “至少实现 VIP/CommonUser 这两个接口中的一个” ， “不能同时实现 VIP/CommonUser” 这两个条件。 如果再加上游客类型需要实现三个互斥属性， 也只需要额外嵌套一层：
+
+```typescript
+interface Visitor {
+  returnType: 'sss';
+}
+
+// 联合类型会自动合并重复的部分
+type XORUser = XOR<VIP, XOR<CommonUser, Visitor>>;
+```
+
+我们还可以使用互斥类型实现绑定效果， 即要么同时拥有 A、B 属性 要么一个都没
+
+```typescript
+type XORStruct = XOR<{}, {
+  foo: string;
+  bar: number;
+}>
+```
+
+## 集合工具类型进阶
+
+对于对象类型的交并补差集， 我们仍然沿用 “降级”的处理思路， 把他简化为可以用基础工具类型处理的问题即可。 在这里， 对象类型的交并补差集基本可以降维到对象属性名集合的交并补差集问题， 比如交集就是两个对象属性名的交集， 使用属性名的交集访问其中一个对象， 就可以获得对象之间的交集结构（不考虑同名属性冲突）
+
+复习一下前面的一维集合：
+
+```typescript
+// 并集
+type Concurrence<A, B> = A | B;
+
+// 交集
+type intersection<A, B> = A extends B ? A : never;
+
+// 差集
+type Difference<A, B> = A extends B ? never : A;
+
+// 补集
+type Complement<A, B extends A> = Difference<A, B>;
+
+```
+
+我们对应地实现对象属性名的版本：
+
+```typescript
+// 使用更精确的对象类型描述结构
+export type PlainObjectType = Record<string, any>;
+
+// 属性名并集
+export type ObjectKeysConcurrence<
+  T extends PlainObjectType,
+  U extends PlainObjectType
+> = keyof T | keyof U;
+
+// 属性名交集
+export type ObjectKeysIntersection<
+  T extends PlainObjectType,
+  U extends PlainObjectType
+> = Intersection<keyof T, keyof U>;
+
+// 属性名差集
+export type ObjectKeysDifference<
+  T extends PlainObjectType,
+  U extends PlainObjectType
+> = Difference<keyof T, keyof U>;
+
+// 属性名补集
+export type ObjectKeysComplement<
+  T extends U,
+  U extends PlainObjectType
+> = Complement<keyof T, keyof U>;
+```
+
+对于交集、补集、差集，我们可以直接使用属性名的集合来实现对象层面的版本：
+
+```typescript
+export type ObjectIntersection<
+  T extends PlainObjectType,
+  U extends PlainObjectType
+> = Pick<T, ObjectKeysIntersection<T, U>>;
+
+export type ObjectDifference<
+  T extends PlainObjectType,
+  U extends PlainObjectType
+> = Pick<T, ObjectKeysDifference<T, U>>;
+
+export type ObjectComplement<T extends U, U extends PlainObjectType> = Pick<
+  T,
+  ObjectKeysComplement<T, U>
+>;
+```
+
+需要注意的是在 ObjectKeysComplement 与 ObjectComplement 中， `T extends U` 意味着 T 是 U 的子类型，但在属性组成的集合类型中却相反， **U 的属性联合类型是 T 的属性联合类型的子类型**， 因为既然 T 是 U 的子类型， 那很显然 T 所拥有的属性更多嘛。
+
+而对于并集， 就不能简单使用属性名并集版本了， 因为使用联合类型实现， 我们并不能控制**同名属性的优先级**， 比如我到底是保持源对象属性类型呢， 还是使用新对象的属性类型？
+
+其实， 对于合并两个对象的情况， 其实就是两个对象各自特有的部分加上同名属性的组成部分。
+
+对于 T、U 两个对象， 假设以 U 的同名属性优先， 思路会是这样的
+
+- T 比 U 多的部分： T 相对于 U 的差集， `ObjectDifference<T, U>`
+- U 比 T 多的部分： U 相对于 T 的差集， `ObjectDifference<U, T>`
+- T 与 U 的交集， 由于 U 的优先级更高， 在交集处理中将 U 作为原集合， T 作为后传入的集合， `ObjectIntersection<U, T>`
+
+我们就得到了 Merge
+
+```typescript
+type Merge<
+ T extends PlainObjectType,
+ U extends PlainObjectType
+> = ObjectDifference<T, U> & ObjectIntersection<U, T> & ObjectDifference<U, T>;
+```
+
+如果要保证源对象优先级更高， 那么只需要在交集处理中将 T 视为原集合， U 作为后传入的集合即可：
+
+```typescript
+type Assign<T extends PlainObjectType, U extends PlainType> = ObjectDifference<T, U> & ObjectIntersection<T, U> & ObjectDifference<U, T>;
+```
+
+除了简单粗暴地完全合并以外， 我们还可以实现不完全的合集， 即使用对象 U 的属性类型覆盖 对象 T 中的同名属性类型， 但**不会将 U 独特的部分**合并过来
+
+```typescript
+type Override<T extends PlainObjectType, U extends PlainObjectType> = ObjectDifference<T, U> & ObjectIntersection<U, T>;
+```
+
+## 模式匹配工具类型进阶
+
+在内置工具类型一节中， 我们对模式匹配工具类型的进阶方向其实只有深层嵌套这么一种， 特殊位置的 infer 处理其实大部分时候也是通过深层嵌套实现， 比如此前我们实现了提取函数的首个参数类型:
+
+```typescript
+type FirstParameter<T extends (...args: any) => any> = T extends (
+ first: infer F,
+ ...rest: any[]
+) => any
+ ? F
+ : never;
+
+```
+
+要提取最后一个参数则是这样的:
+
+```typescript
+type FunctionType = (...args: any) => any;
+
+type LastParameter<T extends FunctionType> = T extends (arg: infer P) => any
+ ? P
+ : T extends (...args: infer R) => any
+ ? R extends [...any, infer Q]
+  ? Q
+  : never
+ : never;
+```
+
+这也是模式匹配常用的一种方法， 通过 infer 提取到某个结构，然后再对这个结构进行 infer 提取。
+
+我们在此之前曾经讲到一个提取Promise 内部值类型的工具类型 PromiseValue， typescript 内置工具类型中也存在这么一个作用的工具类型， 并且他的实现更为严谨：
+
+```typescript
+type Awaited<T> = T extends null | undefined
+ ? T
+ : T extends object & {
+   then(onfulfilled: infer F): any;
+   }
+ ? F extends (value: infer V, ...args: any) => any
+  ? Awaited<V>
+  : never
+ : T;
+```
+
+首先会发现， 在这里 Awaited 并非通过 `Promise<inter V>` 来提取函数类型， 而是通过 `Promise.then` 方法提取， 首先提取到 then 方法中的函数类型， 在通过这个函数类型的首个参数来提取出实际的值。
+
+更严谨的来说， PromiseValue 与 Awaited 并不应该放在一起比较， 前者就只想提取 `Promise<void>` 这结构的内部类型， 后者则像在类型的层面执行了 `await Promise.then()` 之后的返回值类型。 同样的， 这里也用到了 infer 伴随结构转化的例子。
