@@ -1,20 +1,17 @@
-type FunctionType = (...args: any) => any;
+interface Foo {
+	name: string;
+	age: number;
+	job: Job;
+}
 
-type LastParameter<T extends FunctionType> = T extends (arg: infer P) => any
-	? P
-	: T extends (...args: infer R) => any
-	? R extends [...any, infer Q]
-		? Q
-		: never
-	: never;
+interface Job {
+	f: string;
+}
 
-type a = (name: string) => void;
-type b = (name: string, age: number) => void;
-type c = () => Promise<string>;
+type ChangeListener = {
+	on: (change: `${keyof Foo}Changed`) => void;
+};
 
-type a1 = LastParameter<a>;
-type b1 = LastParameter<b>;
-type c1 = LastParameter<c>;
+declare let listener: ChangeListener;
 
-type d = Awaited<c>;
-
+listener.on('')

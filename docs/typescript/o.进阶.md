@@ -5,6 +5,10 @@ prev:
  text: n.协变与逆变的比较
  link: /typescript/n.协变与逆变的比较.html
 
+next:
+ text: p.模板字符串
+ link: /typescript/p.模板字符串.html
+
 ---
 
 #
