@@ -1,17 +1,16 @@
-interface Foo {
+interface Io {
 	name: string;
 	age: number;
-	job: Job;
 }
 
-interface Job {
-	f: string;
-}
-
-type ChangeListener = {
-	on: (change: `${keyof Foo}Changed`) => void;
+type F<T> = {
+	[K in keyof T as T[K] extends string ? never : K]: T[K] extends string
+		? never
+		: T[K];
 };
 
-declare let listener: ChangeListener;
+type t = F<Io>;
 
-listener.on('')
+const obj: t = {
+	age: 233
+};

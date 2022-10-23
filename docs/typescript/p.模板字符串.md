@@ -172,3 +172,88 @@ type CopiedFoo = CopyWithRename<Foo>;
 ```
 
 这里我们其实就是通过 `as` 语法， 将映射的键名作为变量， 映射到一个新的字符串类型。 需要注意的是， 由于对象的合法键名类型包括了 symbol， 而模板字符串类型插槽中并不支持 symbol 类型。 因此我们使用 `string & K` 来确保最终交由模板插槽的值， 一定会是合法的 string 类型。
+
+## 专用工具类型
+
+这些工具类型专用于字符串字面量类型
+
+- Uppercase 字符串大写
+- Lowercase 字符串小写
+- Capitalize 首字母大写
+- Uncapitalize 首字母小写
+
+上面重映射部分。 我们成功将键名从 name 修改成了 modified_name 的形式， 如果要修改成我们更习惯的小驼峰形式呢？
+
+此时就可以使用 Capitalize 工具类型了：
+
+```typescript
+type CopyWithRename<T extends object> = {
+ [K in keyof T as `modified${Capitalize<string & K>}`]: T[K];
+};
+
+```
+
+实际上， 这是 ts 首次引入了**能直接改变类型本身含义**的工具类型， 你肯定对他内部的实现很感兴趣， 然而当你跳到源码定义时候却会发现它们是这样的
+
+```typescript
+type Capitalize<S extends string> = intrinsic;
+```
+
+intrinsic 代表了这一工具类型由 TypeScript 内部进行实现，如果我们去看内部的源码，会发现更神奇的部分：
+
+```typescript
+function applyStringMapping(symbol: Symbol, str: string) {
+  switch (intrinsicTypeKinds.get(symbol.escapedName as string)) {
+    case IntrinsicTypeKind.Uppercase: return str.toUpperCase();
+    case IntrinsicTypeKind.Lowercase: return str.toLowerCase();
+    case IntrinsicTypeKind.Capitalize: return str.charAt(0).toUpperCase() + str.slice(1);
+    case IntrinsicTypeKind.Uncapitalize: return str.charAt(0).toLowerCase() + str.slice(1);
+  }
+  return str;
+}
+```
+
+在这里字符串字面量类型被作为一个字符串值一样进行处理，这些工具类型通过调用了字符串的 toUpperCase 等原生方法实现。而按照这个趋势来看，在未来我们很有可能实现对字面量类型的更多操作，甚至以后我们能直接调用 Lodash 来处理字符串类型也说不定。
+
+## 模板字符串类型与模式匹配
+
+模式匹配工具类型的核心理念就是对符合约束的某个类型结构， 提取某一个位置的类型， 比如函数结构中的参数与返回值类型。 而如果我们将一个字符串类型视为一个结构， 就能够在其中也应用模式匹配相关的能力，而我们此前所缺少的就是模板字符串类型的能力
+
+模板插槽不仅可以声明一个占位的坑， 也可以声明一个要提取的部分
+
+```typescript
+type ReverseName<Str extends string> =
+ Str extends `${infer First} ${infer Last}`
+  ? `${Capitalize<Last>} ${First}`
+  : Str;
+
+```
+
+我们一共在两处使用了模板字符串类型。 首先是在约束部分， 我们希望传入的字符串字面量类型是 中间带空格的形式。 注意， 这里的空格也要严格遵循， 因为它也是字面量类型的一部分，
+对于符合这样约束的类型， 我们使用**模板插槽 + infer 关键字** 提取了其空格旁的两个部分。 最后将infer 提取出来的值， 再次使用模板插槽注入到了新的字符串类型中
+
+除了显示使用 infer 进行模式匹配操作以外，由于模板字符串的灵活性， 我们甚至可以直接声明一个泛型来进行模式匹配操作。
+
+```typescript
+declare function handler<Str extends string>(arg: `Guess who is ${Str}`): Str;
+
+handler('Guess who is cqc'); // 'cqc'
+handler('Guess who is '); // ''
+
+```
+
+## 扩展
+
+### 基于重映射的 PickValueType
+
+上面讲到了重映射这个能力， 它使得我们可以在映射类型中去修改映射后的键名， 而如果映射后的键名变成了 never， 那么这个属性将不会出现在最终的接口结构中。
+也就是说， 我们也可以基于重映射来实现**结构处理工具类型**， 比如说 PickValueType：
+
+```typescript
+type PickValueType<T, type> = {
+ [K in keyof T as T[K] extends type ? K : never]: T[K] extends string
+  ? never
+  : T[K];
+};
+
+```
