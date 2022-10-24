@@ -1,29 +1,16 @@
-class Animal {
-	asPat() {}
+interface Io {
+	name: string;
+	age: number;
 }
 
-class Dog extends Animal {
-	bark() {}
-}
+type F<T> = {
+	[K in keyof T as T[K] extends string ? never : K]: T[K] extends string
+		? never
+		: T[K];
+};
 
-class Corgi extends Dog {
-	cute() {}
-}
+type t = F<Io>;
 
-type DogFactory = (arg: Dog) => Dog;
-
-function transformDogAndBark(dogFactory: DogFactory) {
-	const dog = dogFactory(new Dog());
-
-	dog.bark();
-}
-
-type AsFuncArgType<T> = (arg: T) => void;
-type AsFuncReturnType<T> = (arg: unknown) => T;
-
-// 成立 (T -> Corgi） < (T -> Dog),   (T -> Corgi) 是 (T -> Dog) 的子类型
-type CheckReturnType = AsFuncReturnType<Corgi> extends AsFuncReturnType<Dog>
-	? 1
-	: 2; // 1
-
-type CheckArgType = AsFuncArgType<Dog> extends AsFuncArgType<Animal> ? 1 : 2;
+const obj: t = {
+	age: 233
+};
