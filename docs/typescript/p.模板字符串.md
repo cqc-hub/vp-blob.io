@@ -4,6 +4,10 @@ sidebar: auto
 prev:
  text: o.进阶
  link: /typescript/o.进阶.html
+
+next:
+  text: q.字符串进阶
+  link: /typescript/q.字符串进阶.html
 ---
 
 #

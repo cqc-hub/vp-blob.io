@@ -1,16 +1,10 @@
-interface Io {
-	name: string;
-	age: number;
-}
+type Split<
+	Str extends string,
+	Delimit extends string
+> = Str extends `${infer Head}${Delimit}${infer Tail}`
+	? [Head, ...Split<Tail, Delimit>]
+	: Str extends Delimit
+	? []
+	: [Str];
 
-type F<T> = {
-	[K in keyof T as T[K] extends string ? never : K]: T[K] extends string
-		? never
-		: T[K];
-};
-
-type t = F<Io>;
-
-const obj: t = {
-	age: 233
-};
+type a = Split<'cqc', ''>;
