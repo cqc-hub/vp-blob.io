@@ -204,6 +204,18 @@ type a = Join<['c', 'q', 'c'], ','>;
 因此, 我们需要单独处理下最后一项
 
 ```typescript
+
+type Join<
+ T extends Array<string | number>,
+ Delimiter extends string
+> = T extends [string | number]
+ ? T[0]
+ : T extends [infer Head, ...infer Rest]
+ ? // @ts-ignore
+   `${Head}${Delimiter}${Join<Rest, Delimiter>}`
+ : '';
+
+
 type Join<
   List extends Array<string | number>,
   Delimiter extends string
