@@ -4,6 +4,10 @@ sidebar: auto
 prev:
  text: p.模板字符串
  link: /typescript/p.模板字符串.html
+
+next:
+ text: p.模板字符串
+ link: /typescript/p.模板字符串.html
 ---
 
 #
@@ -216,17 +220,6 @@ type Join<
  : '';
 
 
-type Join<
-  List extends Array<string | number>,
-  Delimiter extends string
-> = List extends []
-  ? ''
-  : List extends [string | number]
-  ? List[0]
-  : List extends [string | number, ...Rest]
-  ? //@ts-expect-error
-    `${List[o]}${Delimiter}${Join<Rest, Delimiter>}`
-  : string;
 
 // c,q,c
 type a = Join<['c', 'q', 'c'], ','>;
@@ -234,3 +227,8 @@ type a = Join<['c', 'q', 'c'], ','>;
 ```
 
 看起来很简单的 Join 类型, 我们需要连续处理三次才完成, Split 其实也是, 很难注意到还需要在最后一次递归的单独特殊处理. 这也是类型编程中非常常见的一个场景, **一个工具可能要经过多次改进, 多种边界情况处理, 才能被称为"可用", 尤其是在递归的情况下**
+
+
+
+## Case 转换
+
