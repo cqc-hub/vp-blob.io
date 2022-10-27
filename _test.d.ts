@@ -1,10 +1,17 @@
-declare module 'pkg' {
-	export const handler: () => string;
+export namespace RealCurrency {
+	export class WeChatPaySDK {}
 
+	export class AliPaySDK {}
+
+	export class MeiTuanPaySDK {}
+
+	export class CreditCardPaySDK {}
 }
 
-declare module 'pkg2' {
-	const handler: () => number;
+export namespace VirtualCurrency {
+	export class QQCoinPaySDK {}
 
-	export default handler;
+	export class BitCoinPaySDK {}
+
+	export class ETHPaySDK {}
 }

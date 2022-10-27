@@ -1,0 +1,2 @@
+
+Animal.Dog.eat;
