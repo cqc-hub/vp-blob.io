@@ -1,5 +1,3 @@
-namespace Animal {
-	export namespace Dog {
-		export const bark = () => '汪汪';
-	}
-}
+import { defineConfig } from 'vite';
+
+export default defineConfig({});

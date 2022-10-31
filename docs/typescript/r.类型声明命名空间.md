@@ -490,3 +490,78 @@ namespace Animal {
 
 Animal.Dog.Corgi.corgiBark();
 ```
+
+除了在  `.ts` 文件中使用以外， namespace 也可以在声明文件中使用， 即 `declare namespace`:
+
+```typescript
+declare namespace Animal {
+ interface Dog {}
+
+ interface Cat {}
+}
+
+declare const dog: Animal.Dog;
+declare const cat: Animal.Cat;
+
+```
+
+但如果你在 `@types/` 系列的包下， 想要通过 namespace 进行模块声明， 还需要将其导出, 然后才会加载到对应的模块下。
+以 `@types/react` 为例:
+
+```typescript
+export = React;
+export as namespace React;
+
+declare namespace React {
+ const sayHi: () => 'hello';
+}
+
+```
+
+首先我们声明了一个 namespace React， 然后使用 `export = React` 将它导出了。 这样我们就能在 react 中导入方法时候， 获得 namespace 内部的类型声明， 如 sayHi
+
+从这一角度来看， `declare namespace` 其实就类似于普通的 `declare` 语法， 只是内部的类型我们不在需要使用 declare 关键字（比如我们上面 React 直接内部 `const sayHi: () => 'hello'`）
+
+而还有一行 `export as namespace React`, 他的作用是在启用了 `--allowUmdGlobalAccess` 配置的情况下， 允许将这个模块作为全局变量使用（也就是不导入直接使用）， 这一特性同样也使用于通过 CDN 资源导入模块时候的变量类型声明
+
+除了这两处 namespace 使用， React 中还利用 namespace 合并特性， 在全局的命名空间中注入了一些类型：
+
+```typescript
+// 本地报错的????
+declare global {
+  namespace JSX {
+    interface Element extends React.ReactElement<any, any> { }
+  }
+}
+```
+
+## 扩展
+
+### 通过 JSDoc 在 js 文件中获得类型提示
+
+在上面我们提到了可以在 js 中通过 JSDoc 来标注变量类型， 而既然有了类型标注， 那么自然也能享受到 ts 那样的类型提示了。 但这里我们需要使用更强大一些的 JSDoc 能力： `@type {}` 中使用导入语句
+
+以拥有海量配置项的 webpack 为例:
+
+```javascript
+/** @type { import('webpack').Configuration } */
+const config = {};
+
+module.exports = config;
+```
+
+这个时候你会发现 config 已经可以得到 webpack 的类型提示
+
+类似的， 也可以直接进行导出:
+
+```javascript
+module.exports = /** @type { import('webpack').Configuration } */ ({});
+```
+
+当然， webpack 本身也支持通过ts文件进行配置， 在使用 ts 配置时候， 一种方式是简单地使用它提供的类型作为一个对象的标注。 而目前更常见的一种方式其实是框架内部提供 `defineConfig` 这样的方法，让你直接获得类型提示， 如 Vite 中的做法:
+
+```typescript
+import { defineConfig } from 'vite';
+
+export default defineConfig({});
+```
