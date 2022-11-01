@@ -7,7 +7,8 @@
 	"license": "MIT",
 	"scripts": {
 		"docs:dev": "vuepress dev docs",
-		"docs:build": "vuepress build docs"
+		"docs:build": "vuepress build docs",
+		"ts:test": "ts-node ./_test.ts "
 	},
 	"devDependencies": {
 		"@vuepress/bundler-vite": "^2.0.0-beta.43",

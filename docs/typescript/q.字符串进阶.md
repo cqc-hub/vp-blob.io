@@ -6,8 +6,8 @@ prev:
  link: /typescript/p.模板字符串.html
 
 next:
- text: p.模板字符串
- link: /typescript/p.模板字符串.html
+ text: s.装饰器
+ link: /typescript/s.装饰器.html
 ---
 
 #
