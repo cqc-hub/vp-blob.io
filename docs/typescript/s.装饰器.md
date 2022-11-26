@@ -116,40 +116,45 @@ bar.overridedPrint(); // This is Overrided Bar!
 
 方法装饰器的入参包括 **类的原型、方法名、方法的属性描述符**, 而通过属性描述符你可以控制这个方法的内部实现（即 value）、 可变性（即 writable） 等信息
 
-能拿到原本实现， 也就意味着， 我们可以在指向原本方法的同时， 插入一段新的逻辑， 比如计算这个方法的执行耗时：
+能拿到原本实现， 也就意味着， 我们可以在指向原本方法的同时， 插入一段新的逻辑：
 
 ```typescript
-const ComputedProfiler = (): MethodDecorator => {
- const start = new Date();
- return (target, propKey, desc) => {
-  const originMethodImpl: any = desc.value!;
-  // @ts-ignore
-  desc.value = async function (...args: unknown[]) {
-   const res = await originMethodImpl.apply(this, args);
-   const end = new Date();
-   console.log(
-    `${String(propKey)} Time:`,
-    end.getTime() - start.getTime()
-   );
-   console.log(this, target);
+function HiOverride(): MethodDecorator {
+  return (target, propKey, desc: TypedPropertyDescriptor<any>) => {
+    const oldFn = desc.value;
 
-   // 实际上接收的值
-   return 'cqc' + res;
+    desc.value = function (...args) {
+      oldFn.call(this, args);
+      console.log('new method', propKey);
+      console.log(target === Foo.prototype); // true
+
+      return 'aaa';
+    };
   };
- };
-};
+}
 
 class Foo {
- // @ts-ignore
- @ComputedProfiler()
- fetch() {
-  return new Promise((resolve) => {
-   setTimeout(() => {
-    resolve('res');
-   }, 1500);
-  });
- }
+  @HiOverride()
+  sayHi() {
+    console.log('old method');
+    console.log('this.name: ', this.name);
+  }
+
+  _name = 'cqc';
+
+  get name() {
+    return this._name;
+  }
+
+  set name(str: string) {
+    this._name = str;
+  }
 }
+
+const foo = new Foo();
+
+foo.sayHi();
+
 ```
 
 这里主要了解下 MethodDecorator 类型的三个入参
@@ -157,3 +162,190 @@ class Foo {
 - target: 类的原型，（不是类本身， 比如这里对应的就是 `Foo.prototype`）
 - propKey: 当前作用装饰器对应的方法名
 - desc: 该方法的描述信息(可以通过 `desc.value` 来获取该属性的值)
+
+### 访问符装饰器
+
+访问符装饰器并不常见, 但他其实就是 `get value() {}`, `set value(v) {}` 这样的方法, 其中 getter 是在访问这个属性 `value`时候触发, setter 是在对这个 `value` 进行赋值时候触发.
+
+**访问符装饰器本质上仍然是方法装饰器, 他们使用的类型定义也相同,** 需要注意的是, 访问符装饰器只能同时应用在一对 getter/setter 的其中一个, 即要么装饰 getter, 要么装饰 setter, 装饰器入参中的描述符都会包括 getter/setter 方法
+
+```typescript
+function HiName(v: string): MethodDecorator {
+  return (target, propKey, desc: TypedPropertyDescriptor<any>) => {
+    const oldSetter = desc.set!;
+    const oldGetter = desc.get!;
+
+    desc.set = function (newValue: string) {
+      const composed = `Raw: ${newValue}, Actual: ${v}-${newValue}`;
+      oldSetter.call(this, composed);
+    };
+
+    desc.get = function () {
+      return oldGetter.call(this) + '要幸福啊燕子';
+    };
+  };
+}
+
+class Foo {
+  private _name = 'cqc';
+
+  get name() {
+    return this._name;
+  }
+
+  @HiName('哈哈啊哈')
+  set name(str: string) {
+    this._name = str;
+  }
+}
+
+const foo = new Foo();
+
+foo.name = '233';
+
+console.log(foo.name); // Raw: 233, Actual: 哈哈啊哈-233要幸福啊燕子
+
+```
+
+### 属性装饰器
+
+属性装饰器在独立使用时候能力非常有限, 它的入参只有 **类的原型与属性名称**, 返回值会被忽略, 但你仍然可以通过**直接在类的原型上赋值来修改属性**
+
+```typescript
+function ModifyNickName(otherName: string): PropertyDecorator {
+  return (target: any, propKey) => {
+    target[propKey] = 'cqc';
+    target.otherName = otherName;
+  };
+}
+
+class Foo {
+  @ModifyNickName('大钢炮')
+  nickName!: string;
+}
+
+const foo = new Foo();
+
+foo.nickName; // cqc
+// @ts-expect-error
+foo.otherName; // 大钢炮
+
+```
+
+### 参数装饰器
+
+参数装饰器包括了构造函数的参数装饰器与方法的参数装饰器, 它的入参包括**类的原型 参数名 参数在函数参数重的索引值(即第几个参数)**, 如果只是单独使用, 它的作用非常有限
+
+```typescript
+function CheckParam(): ParameterDecorator {
+  return (target, propKey, index) => {
+    console.log(target, propKey, index);
+  };
+}
+
+class Foo {
+  saiHi(@CheckParam() input: string) {
+    console.log(input);
+  }
+}
+
+const foo = new Foo();
+
+```
+
+### 装饰器的执行机制
+
+装饰器的执行机制中主要包括 **执行时机 执行原理 执行顺序** 这三个概念
+
+首先是执行时机, 还记得我们刚开始说的吗? 装饰器的本质就是一个函数, 因此只要在类上定义了它, 即是不去实例化这个类或者读取静态成员, 他也会正常执行. 很多时候, 我们并不会实例化具有装饰器的类, 而是通过反射元数据的能力来消费(后面说). 而装饰器的执行原理我们可以通过编译后的代码来了解
+
+```typescript
+@Cls()
+class Foo {
+  constructor(@Param() init?: string) { }
+
+  @Prop()
+  prop!: string
+
+  @Method()
+  handler(@Param() input: string) {
+
+  }
+}
+```
+
+-> 经过简化 [完整代码](https://www.typescriptlang.org/zh/play?ssl=5&ssc=10&pln=5&pc=16#code/GYVwdgxgLglg9mABAYQDYGcAUBKAXC1AQ3XQBEBTCOAJ0KhsQG8AoRRa8qEapTKQ6gHNO2RAF4AfE0QBfZnOahIsBIgCynABZwAJjnwao2nRSq161Jq0RUw6OKnIA6VHEGYA5Ju+aP2axxcPIh8AsJQopLScgpK0PBIAArUcAAO+ojJaeTUUACepjR0DCxsgdy8-EIi4lKlsvLMiuDxqokChAC2Ge20nZw5heYlAZwVIVXhkXUNCgACaFj+EEQkiABicHBWbLboUNQg0DSYc71dOIgwYDBQAPz4+9TXgqKMDdZnKen+bKnfjwOL3EiA8qGuACMQDoQB4mmwvmkcNZ9nQYBBEKjYBAsqlAc8wIIQR4sejEOCwFCYXDPoZjMi2JpCGAdI5qKdzt1RNdUiAoPiXm94R8EXTdAzMfxsZK0RAABLM1k5DkdLlXMC8-mSgmvKzWGJNZh7KCIYBbEFgcgAdw2WxwAG4gA)
+
+```javascript
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+   // ...
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+
+let Foo = class Foo {
+    constructor(init) { }
+    handler(input) {
+    }
+};
+
+__decorate([
+    Prop(),
+], Foo.prototype, "prop", void 0);
+
+__decorate([
+    Method(),
+    __param(0, Param()),
+], Foo.prototype, "handler", null);
+
+Foo = __decorate([
+    Cls(),
+    __param(0, Param()),
+], Foo);
+```
+
+可以看到，上面的装饰器顺序依次是实例上的属性、方法、方法参数，然后是静态的属性、方法、方法参数，最后是类以及类构造函数参数。
+
+在 TypeScript 官方文档中对应用顺序给出了详细的定义：
+
+1. 参数装饰器，然后依次是方法装饰器，访问符装饰器，或属性装饰器应用到每个实例成员。
+2. 参数装饰器，然后依次是方法装饰器，访问符装饰器，或属性装饰器应用到每个静态成员。
+3. 参数装饰器应用到构造函数。
+4. 类装饰器应用到类。
+
+```typescript
+function Deco(identifier: string): any {
+  console.log(`${identifier} 执行`);
+  return function () {
+    console.log(`${identifier} 应用`);
+  };
+}
+
+@Deco('类装饰器')
+class Foo {
+  constructor(@Deco('构造函数参数装饰器') name: string) {}
+
+  @Deco('实例属性装饰器')
+  prop?: number;
+
+  @Deco('实例方法装饰器')
+  handler(@Deco('实例方法参数装饰器') args: any) {}
+}
+```
+
+result
+
+```text
+实例属性装饰器 执行
+实例属性装饰器 应用
+实例方法装饰器 执行
+实例方法参数装饰器 执行
+实例方法参数装饰器 应用
+实例方法装饰器 应用
+类装饰器 执行
+构造函数参数装饰器 执行
+构造函数参数装饰器 应用
+类装饰器 应用
+```
