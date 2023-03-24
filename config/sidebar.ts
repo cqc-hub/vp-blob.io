@@ -75,9 +75,9 @@ const sliderBar: SidebarConfig = {
 	'/typescript/': [
 		{
 			text: 'TypeScript',
-			children: readFileSync('typescript'),
 			link: '/typescript/'
-		}
+		},
+		...readFileSync('typescript')
 	],
 
 	'/wxProgram/': [
@@ -90,9 +90,19 @@ const sliderBar: SidebarConfig = {
 	'/debug/': [
 		{
 			text: '代码调试',
-			collapsible: true,
-			children: readFileSync('debug')
-		}
+			link: '/debug/',
+			collapsible: true
+		},
+		...readFileSync('debug')
+	],
+
+	'/vite/': [
+		{
+			text: 'vite',
+			link: '/vite/',
+			collapsible: true
+		},
+		...readFileSync('vite')
 	]
 };
 

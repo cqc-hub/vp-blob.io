@@ -2,6 +2,11 @@ import type { NavbarConfig } from '@vuepress/theme-default';
 
 const navBar: NavbarConfig = [
 	{
+		text: 'vite',
+		link: '/vite/'
+	},
+
+	{
 		text: '调试',
 		link: '/debug/'
 	},
