@@ -1,10 +1,10 @@
 import { SidebarConfig } from 'vuepress-vite';
 const path = require('path');
 const fs = require('fs');
+const bPath = '../docs/';
 
 // 固定取 ../docs/ 目录下
-const readFileSync = function (path2): string[] {
-	const bPath = '../docs/';
+const readFileSync = function (path2) {
 	const filePath = `${bPath + path2}`;
 
 	return fs
@@ -14,6 +14,49 @@ const readFileSync = function (path2): string[] {
 			text: p.replace('.md', ''),
 			link: '/' + path2 + '/' + p
 		}));
+};
+const pathAside = path.resolve(__dirname, bPath);
+const defineRoute = (fullPath: string, path: string, isDir: boolean) => {
+	const item: any = {
+		text: path.replace('.md', '')
+	};
+
+	if (isDir) {
+		item.children = [];
+		item.collapse = true;
+	} else {
+		item.link = fullPath.slice(pathAside.length);
+	}
+
+	return item;
+};
+
+const readFileDeep = function (dir = path.resolve(__dirname, bPath)) {
+	const routes = [];
+
+	const _readFileDeep = function (dir: string, routes) {
+		const files = fs.readdirSync(dir);
+
+		files.forEach((item: string, index) => {
+			const fullPath = path.join(dir, item);
+			const stat = fs.statSync(fullPath);
+			const isDir = stat.isDirectory();
+			const _route = defineRoute(fullPath, item, isDir);
+
+			if (!item.startsWith('.')) {
+				if (isDir) {
+					routes.push(_route);
+					_readFileDeep(fullPath, _route.children);
+				} else if (item !== 'README.md') {
+					routes.push(_route);
+				}
+			}
+		});
+	};
+
+	_readFileDeep(dir, routes);
+
+	return routes;
 };
 
 const sliderBar: SidebarConfig = {
@@ -77,7 +120,7 @@ const sliderBar: SidebarConfig = {
 			text: 'TypeScript',
 			link: '/typescript/'
 		},
-		...readFileSync('typescript')
+		...readFileDeep(path.resolve(__dirname, bPath + 'typescript'))
 	],
 
 	'/wxProgram/': [
@@ -102,7 +145,7 @@ const sliderBar: SidebarConfig = {
 			link: '/vite/',
 			collapsible: true
 		},
-		...readFileSync('vite')
+		...readFileDeep(path.resolve(__dirname, bPath + 'vite'))
 	]
 };
 
