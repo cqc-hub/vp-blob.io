@@ -5,9 +5,9 @@
 				<a @click.stop="itemClick(nav)" href="#">{{ nav.title }}</a>
 			</li>
 		</ul>
-		<button @click="toggleNav" class="icon" id="toggle">
-			<div class="line line1"></div>
-			<div class="line line2"></div>
+		<button @click="toggleNav" className="icon" id="toggle">
+			<div className="line line1"></div>
+			<div className="line line2"></div>
 		</button>
 	</nav>
 </template>
@@ -76,8 +76,6 @@ nav {
 	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 	transition: width 0.6s linear;
 	overflow-x: hidden;
-
-	position: absolute;
 }
 
 nav.active {

@@ -60,38 +60,38 @@ const readFileDeep = function (dir = path.resolve(__dirname, bPath)) {
 };
 
 const sliderBar: SidebarConfig = {
-	'/components/': [
-		{
-			text: '通用',
-			collapsible: true,
-			children: [
-				{
-					text: 'Button 按钮',
-					link: '/components/pages/Button'
-				}
-			]
-		},
-		{
-			text: '数据录入',
-			collapsible: true,
-			children: [
-				{
-					text: 'Slider 滑动组件',
-					link: '/components/pages/Slider'
-				}
-			]
-		},
-		{
-			text: '数字输入框',
-			collapsible: true,
-			children: [
-				{
-					text: 'InputNumber 数字输入框',
-					link: '/components/pages/InputNumber'
-				}
-			]
-		}
-	],
+	// '/components/': [
+	// 	{
+	// 		text: '通用',
+	// 		collapsible: true,
+	// 		children: [
+	// 			{
+	// 				text: 'Button 按钮',
+	// 				link: '/components/pages/Button'
+	// 			}
+	// 		]
+	// 	},
+	// 	{
+	// 		text: '数据录入',
+	// 		collapsible: true,
+	// 		children: [
+	// 			{
+	// 				text: 'Slider 滑动组件',
+	// 				link: '/components/pages/Slider'
+	// 			}
+	// 		]
+	// 	},
+	// 	{
+	// 		text: '数字输入框',
+	// 		collapsible: true,
+	// 		children: [
+	// 			{
+	// 				text: 'InputNumber 数字输入框',
+	// 				link: '/components/pages/InputNumber'
+	// 			}
+	// 		]
+	// 	}
+	// ],
 
 	'/documents/': [
 		{
@@ -113,14 +113,6 @@ const sliderBar: SidebarConfig = {
 				}
 			]
 		}
-	],
-
-	'/typescript/': [
-		{
-			text: 'TypeScript',
-			link: '/typescript/'
-		},
-		...readFileDeep(path.resolve(__dirname, bPath + 'typescript'))
 	],
 
 	'/wxProgram/': [
@@ -146,6 +138,14 @@ const sliderBar: SidebarConfig = {
 			collapsible: true
 		},
 		...readFileDeep(path.resolve(__dirname, bPath + 'vite'))
+	],
+
+	'/typescript/': [
+		{
+			text: 'TypeScript',
+			link: '/typescript/'
+		},
+		...readFileDeep(path.resolve(__dirname, bPath + 'typescript'))
 	]
 };
 

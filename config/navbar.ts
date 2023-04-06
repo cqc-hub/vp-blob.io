@@ -7,6 +7,11 @@ const navBar: NavbarConfig = [
 	},
 
 	{
+		text: 'TypeScript',
+		link: '/typescript/'
+	},
+
+	{
 		text: '调试',
 		link: '/debug/'
 	},
@@ -16,10 +21,10 @@ const navBar: NavbarConfig = [
 		link: '/note/'
 	},
 
-	{
-		text: '组件',
-		link: '/components/'
-	},
+	// {
+	// 	text: '组件',
+	// 	link: '/components/'
+	// },
 	{
 		text: '笔记',
 
@@ -27,11 +32,6 @@ const navBar: NavbarConfig = [
 			{
 				text: '前端',
 				children: [
-					{
-						text: 'TypeScript',
-						link: '/typescript/'
-					},
-
 					{
 						text: '分享',
 						link: '/documents/introduction'

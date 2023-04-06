@@ -21,9 +21,9 @@ import { ref, defineComponent } from 'vue'
 export default defineComponent({
   setup() {
     const title = ref('vuepress-plugin-demoblock-plus')
-    
+
     const url = 'https://github.com/xinlei3166/vuepress-plugin-demoblock-plus'
-    
+
     const data = [
       {
         name: '1'
@@ -62,7 +62,6 @@ export default defineComponent({
 ```
 
 :::
-
 
 ## Setup TypeScript
 
