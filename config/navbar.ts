@@ -16,10 +16,10 @@ const navBar: NavbarConfig = [
 		link: '/debug/'
 	},
 
-	{
-		text: '个人记录',
-		link: '/note/'
-	},
+	// {
+	// 	text: '个人记录',
+	// 	link: '/note/'
+	// },
 
 	// {
 	// 	text: '组件',
