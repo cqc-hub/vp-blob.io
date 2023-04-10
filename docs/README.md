@@ -35,11 +35,9 @@ footer: MIT Licensed | Copyright © 2018-present Evan You
 
 ## 表格
 
-[233](/vp-blob.io/documents/introduction)
-
 | Command    | Description                                                                         |
 | ---------- | ----------------------------------------------------------------------------------- |
-| git status | List all new or modified <RouterLink to="/documents/introduction">首页</RouterLink> |
+| git status | List all new or modified  |
 | git diff   | Show file differences that haven't been staged                                      |
 
 ## 代码行高亮
@@ -72,3 +70,6 @@ const bar = 'bar';
 
 :::
 ::::
+
+
+<RouterLink to="/typescript">typescript</RouterLink>

@@ -60,7 +60,7 @@ const readFileDeep = function (dir = path.resolve(__dirname, bPath)) {
 };
 
 const sliderBar: SidebarConfig = {
-	// '/components/': [
+	// '/components': [
 	// 	{
 	// 		text: '通用',
 	// 		collapsible: true,
@@ -93,7 +93,7 @@ const sliderBar: SidebarConfig = {
 	// 	}
 	// ],
 
-	'/documents/': [
+	'/documents': [
 		{
 			text: 'introduction',
 			children: [
@@ -115,14 +115,14 @@ const sliderBar: SidebarConfig = {
 		}
 	],
 
-	'/wxProgram/': [
+	'/wxProgram': [
 		{
 			text: 'WEIXIN',
 			children: readFileSync('wxProgram')
 		}
 	],
 
-	'/debug/': [
+	'/debug': [
 		{
 			text: '代码调试',
 			link: '/debug/',
@@ -131,7 +131,7 @@ const sliderBar: SidebarConfig = {
 		...readFileSync('debug')
 	],
 
-	'/vite/': [
+	'/vite': [
 		{
 			text: 'vite',
 			link: '/vite/',
@@ -140,7 +140,7 @@ const sliderBar: SidebarConfig = {
 		...readFileDeep(path.resolve(__dirname, bPath + 'vite'))
 	],
 
-	'/typescript/': [
+	'/typescript': [
 		{
 			text: 'TypeScript',
 			link: '/typescript/'
