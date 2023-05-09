@@ -15,8 +15,6 @@ const sidebar = require(basePath + '/config/sidebar');
 
 export default defineUserConfig({
 	lang: 'zh-CN',
-	title: '你好， 炒青菜！',
-	description: 'hello VuePress',
 	head: [
 		[
 			'link',
@@ -72,7 +70,8 @@ export default defineUserConfig({
 		registerComponentsPlugin({
 			componentsDir: path.resolve(__dirname, './components'),
 			components: {
-				MyNote: path.resolve(__dirname, './pages/MyNote/MyNote.vue')
+				MyNote: path.resolve(__dirname, './pages/MyNote/MyNote.vue'),
+				MyHome: path.resolve(__dirname, './pages/home/MyHome.vue')
 			}
 		})
 	],
@@ -90,7 +89,6 @@ export default defineUserConfig({
 		docsDir: '/docs',
 		docsBranch: 'master',
 		editLinkPattern: ':repo/tree/:branch/:path',
-		toggleSidebar: '这个没效果?'
 	}),
 
 	clientAppEnhanceFiles: [`${basePath}/config/clientAppEnhance.ts`]

@@ -218,5 +218,3 @@ const _new = function (constructor, ...args) {
 
 const cqc = _new(Person, 'cqc');
 ```
-
-### 类式继承
