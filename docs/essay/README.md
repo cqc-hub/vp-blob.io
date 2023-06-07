@@ -4,7 +4,9 @@ sidebarDepth: 4
 ---
 
 
-# 原型
+#
+
+## 原型一把梭
 
 [如果知道以下几个问题, `原型` 这一章节可以略过](https://juejin.cn/post/6844903984335945736#heading-5)
 
@@ -15,8 +17,6 @@ sidebarDepth: 4
 - ES5 实现继承有几种方式, 优缺点?
 - ES6 如何实现一个类
 - ES6 `extends` 关键字实现原理?
-
-## 原型一把梭
 
  <img src="https://phsdevoss.eheren.com/pcloud/phs3.0/test/proto-classic.jpg"  width="500" height="600" />
 
@@ -217,4 +217,150 @@ const _new = function (constructor, ...args) {
 
 
 const cqc = _new(Person, 'cqc');
+```
+
+## 手写Promise
+
+```ts
+class MyPromise {
+  state: 'pending' | 'fulfilled' | 'rejected' = 'pending';
+  successTask: ((any) => any)[];
+  failTask: ((any) => any)[];
+  data: any;
+  err: any;
+
+  constructor(fn) {
+    this.successTask = [];
+    this.failTask = [];
+
+    const resolve = (v) => {
+      if (this.state === 'pending') {
+        this.state = 'fulfilled';
+        this.data = v;
+
+        setTimeout(() => {
+          this.successTask.map((o) => o(v));
+        });
+      }
+    };
+
+    const reject = (err) => {
+      if (this.state === 'pending') {
+        this.state = 'rejected';
+        this.err = err;
+        setTimeout(() => {
+          this.failTask.map((o) => o(err));
+        });
+      }
+    };
+
+    try {
+      fn(resolve, reject);
+    } catch (error) {
+      reject(error);
+    }
+  }
+
+  then(resolve: ((any) => any) | null, reject?: (any) => any) {
+    return new MyPromise((_resolve, _reject) => {
+      resolve &&
+        this.successTask.push(() => {
+          const res = resolve(this.data);
+
+          if (res instanceof MyPromise) {
+            res.then(_resolve, _reject);
+          } else {
+            _resolve(this.data);
+          }
+        });
+
+      reject &&
+        this.failTask.push(() => {
+          const res = reject(this.err);
+          if (res instanceof MyPromise) {
+            res.then(_resolve, _reject);
+          } else {
+            _reject(this.err);
+          }
+        });
+    });
+  }
+
+  catch(fn) {
+    return this.then(null, fn);
+  }
+
+  static resolve(v) {
+    return new MyPromise((r) => r(v));
+  }
+
+  static reject(err) {
+    return new MyPromise((r, j) => j(err));
+  }
+}
+```
+
+## 事件轮询
+
+js 中, 所有任务可以分为宏任务和微任务两种
+
+- 宏任务: 在主线程上排队执行的任务, 只有前一个任务执行完毕, 才能执行下一个任务
+  - script, setTimeout, setInterval 等都属于宏任务
+- 微任务: 不进入主线程, 而进入 微任务列表 的任务
+  - Promise, MutationObserver
+
+### 事件轮询过程
+
+- 1. 代码执行过程中, 宏任务和微任务放在不同的任务队列中
+- 2. 当某个宏任务执行完后, 会查看微任务队列是否有任务, 如果有, 执行微任务队列中的**所有任务**
+- 3. 微任务队列执行完成后, 会读取任务队列中的第一个宏任务(注意宏任务是一个个取), 执行该宏任务, 如果执行过程中, 遇到微任务, 依次加入微任务队列
+- 4. 宏任务执行完成后, 再次读取微任务队列中的任务, 依次类推
+
+```js
+Promise.resolve()
+  .then(function () {
+    console.log('promise0');
+  })
+  .then(function () {
+    console.log('promise5');
+  });
+
+setTimeout(() => {
+  console.log('timer1');
+  Promise.resolve().then(function () {
+    console.log('promise2');
+  });
+  Promise.resolve().then(function () {
+    console.log('promise4');
+  });
+}, 0);
+
+setTimeout(() => {
+  console.log('timer2');
+  Promise.resolve().then(function () {
+    console.log('promise3');
+  });
+}, 0);
+
+Promise.resolve().then(function () {
+  console.log('promise1');
+});
+
+console.log('start');
+
+/**
+ * start
+ * promise0
+ * promise1
+ * promise5
+ *
+ * timer1
+ * promise2
+ * promise4
+ *
+ * timer2
+ * promise3
+ */
+
+
 ```

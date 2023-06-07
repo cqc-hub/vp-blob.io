@@ -18,6 +18,7 @@
 			ref="cursorRef"
 		/>
 	</div>
+
 	<div
 		class="myHome"
 		@mousemove="onMouseMove"
@@ -25,7 +26,9 @@
 		@mouseleave="onMouseLeave"
 		ref="containerRef"
 	>
-		<div class="layout">233</div>
+		<div class="layout">
+			<Police-Line />
+		</div>
 		<div class="sideBarLeft">
 			<a-anchor>
 				<block v-for="item in linkList" :key="item.href">
@@ -42,11 +45,14 @@ import { watchEffect, ref } from 'vue';
 import { TLinkItem } from './index';
 
 import AnchorLink from './component/AnchorLink.vue';
+import PoliceLine from './component/PoliceLine.vue';
 
 interface MousePos {
 	mouseX: number | null;
 	mouseY: number | null;
 }
+
+const a = ref('');
 
 const cursorDefaultRadius = 13;
 const cursorBigRadius = 40;
@@ -165,7 +171,7 @@ watchEffect(() => {
 
 	loop();
 	window.requestAnimationFrame(loop);
-}, {});
+});
 </script>
 
 <style lang="scss" scoped>
@@ -177,15 +183,19 @@ watchEffect(() => {
 	pointer-events: none;
 	transition: width 0.4s, height 0.4s;
 	transform-origin: 50% 50% 0;
+	z-index: 2;
+	pointer-events: none;
 }
 
 .myHome {
 	display: flex;
-	min-height: 50vh;
+	min-height: 80vh;
 
 	.layout {
 		flex: 1;
 		height: 100%;
+		width: 100%;
+		position: relative;
 	}
 
 	.sideBarLeft {
