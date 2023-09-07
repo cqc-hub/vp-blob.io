@@ -20,5 +20,8 @@
 		"@vuepress/plugin-docsearch": "2.0.0-alpha.1",
 		"@vuepress/plugin-register-components": "^2.0.0-beta.43",
 		"ant-design-vue": "^2.2.8"
+	},
+	"volta": {
+		"node": "16.15.1"
 	}
 }

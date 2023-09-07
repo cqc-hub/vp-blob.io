@@ -27,6 +27,12 @@ interface DataItem {
 
 const data: DataItem[] = [
   {
+    title: 'freecodecamp',
+    description: ' ',
+    href: 'https://www.freecodecamp.org/learn/',
+  },
+
+  {
     title: 'HelloGitHub',
     description: '分享 GitHub 上, 有趣、入门级的开源项目',
     href: 'https://hellogithub.com/',

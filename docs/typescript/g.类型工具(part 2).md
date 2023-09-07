@@ -235,7 +235,8 @@ name.toFixed(); // 编译正常， 运行时候报错
 这里的condition 甚至可以结合 is 关键字进一步提供类型守卫能力：
 
 ```typescript
-function assert(input: any) asserts input is string {
+// 用 const assert = xxx 无效, 会报错
+function assert(input: any): asserts input is string {
   if (typeof input !== 'string') {
     throw new Error('input is not a string!')
   }
