@@ -1,0 +1,1 @@
+const e={key:"v-1a92ba68",path:"/vite/4.%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90/3.JSON%E5%8A%A0%E8%BD%BD.html",title:"",lang:"zh-CN",frontmatter:{pageClass:"my-note"},excerpt:"",headers:[{level:2,title:"json \u52A0\u8F7D",slug:"json-\u52A0\u8F7D",children:[]}],git:{},filePathRelative:"vite/4.\u9759\u6001\u8D44\u6E90/3.JSON\u52A0\u8F7D.md"};export{e as data};

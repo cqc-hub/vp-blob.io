@@ -1,0 +1,1 @@
+import{_ as a,g as t,o as r,a as o,v as s}from"./app.28445bf9.js";const _=t({setup(){return{}}}),n={class:"container"};function c(e,d,p,u,i,l){return r(),o("div",n,[s(e.$slots,"default",{},void 0,!0)])}var v=a(_,[["render",c],["__scopeId","data-v-28f0c476"],["__file","aMark.vue"]]);export{v as default};

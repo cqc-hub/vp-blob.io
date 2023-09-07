@@ -1,0 +1,1 @@
+const t={key:"v-5b52d688",path:"/vite/6.Esbuild/2-3.%E4%BB%A3%E7%A0%81%E8%B0%83%E7%94%A8/3.Transform%20API.html",title:"Transform",lang:"zh-CN",frontmatter:{},excerpt:"",headers:[],git:{},filePathRelative:"vite/6.Esbuild/2-3.\u4EE3\u7801\u8C03\u7528/3.Transform API.md"};export{t as data};

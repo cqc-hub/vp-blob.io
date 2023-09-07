@@ -1,0 +1,1 @@
+const e={key:"v-263dd9fe",path:"/vite/7.Rollup%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8/1.%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B.html",title:"",lang:"zh-CN",frontmatter:{},excerpt:"",headers:[{level:2,title:"\u6F14\u793A",slug:"\u6F14\u793A",children:[]}],git:{},filePathRelative:"vite/7.Rollup\u57FA\u672C\u4F7F\u7528/1.\u5FEB\u901F\u4E0A\u624B.md"};export{e as data};

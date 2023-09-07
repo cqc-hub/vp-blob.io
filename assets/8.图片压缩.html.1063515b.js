@@ -1,0 +1,33 @@
+import{_ as e,r as p,o as t,a as o,d as n,e as c,F as l,f as s,b as r}from"./app.28445bf9.js";const i={},u=n("h1",{id:"\u56FE\u7247\u538B\u7F29",tabindex:"-1"},[n("a",{class:"header-anchor",href:"#\u56FE\u7247\u538B\u7F29","aria-hidden":"true"},"#"),s(" \u56FE\u7247\u538B\u7F29")],-1),m=s("\u56FE\u7247\u8D44\u6E90\u7684\u4F53\u79EF\u5F80\u5F80\u662F\u9879\u76EE\u4EA7\u7269\u4F53\u79EF\u7684\u5927\u5934, \u5982\u679C\u5C3D\u53EF\u80FD\u7CBE\u7B80\u56FE\u7247\u7684\u4F53\u79EF, \u90A3\u4E48\u5BF9\u9879\u76EE\u6574\u4F53\u6253\u5305\u4EA7\u7269\u4F53\u79EF\u7684\u4F18\u5316\u5C06\u4F1A\u662F\u975E\u5E38\u660E\u663E\u7684. \u5728 js \u9886\u57DF\u4E2D\u6709\u4E00\u4E2A\u975E\u5E38\u77E5\u540D\u7684\u56FE\u7247\u538B\u7F29\u5E93 "),b={href:"https://www.npmjs.com/package/imagemin",target:"_blank",rel:"noopener noreferrer"},k=s("imagemin"),d=s(", \u4F5C\u4E3A\u5E95\u5C42\u7684\u538B\u7F29\u5DE5\u5177,\u524D\u7AEF\u7684\u9879\u76EE\u4E2D\u7ECF\u5E38\u57FA\u4E8E\u5B83\u6765\u8FDB\u884C\u56FE\u7247\u7684\u538B\u7F29, \u6BD4\u5982 webpack \u4E2D\u5927\u540D\u9F0E\u9F0E\u7684 "),_=n("code",null,"image-webpack-loader",-1),g=s(". \u793E\u533A\u4E2D\u4E5F\u5DF2\u7ECF\u6709\u4E86\u5F00\u7BB1\u5373\u7528\u7684 vite \u63D2\u4EF6 ----- "),h=n("code",null,"vite-plugin-imagemin",-1),v=s("."),f=r(`<h2 id="\u5B89\u88C5\u4F7F\u7528" tabindex="-1"><a class="header-anchor" href="#\u5B89\u88C5\u4F7F\u7528" aria-hidden="true">#</a> \u5B89\u88C5\u4F7F\u7528</h2><div class="language-typescript ext-ts line-numbers-mode"><pre class="language-typescript"><code>pnpm i vite<span class="token operator">-</span>plugin<span class="token operator">-</span>imagemin <span class="token operator">-</span><span class="token constant">D</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><span class="line-number">1</span><br></div></div><p>\u968F\u540E\u5728 vite \u914D\u7F6E\u4E2D\u5F15\u5165:</p><div class="language-typescript ext-ts line-numbers-mode"><pre class="language-typescript"><code><span class="token comment">//vite.config.ts</span>
+<span class="token keyword">import</span> viteImagemin <span class="token keyword">from</span> <span class="token string">&#39;vite-plugin-imagemin&#39;</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">{</span>
+  plugins<span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token comment">// \u5FFD\u7565\u524D\u9762\u7684\u63D2\u4EF6</span>
+    <span class="token function">viteImagemin</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+      <span class="token comment">// \u65E0\u635F\u538B\u7F29\u914D\u7F6E\uFF0C\u65E0\u635F\u538B\u7F29\u4E0B\u56FE\u7247\u8D28\u91CF\u4E0D\u4F1A\u53D8\u5DEE</span>
+      optipng<span class="token operator">:</span> <span class="token punctuation">{</span>
+        optimizationLevel<span class="token operator">:</span> <span class="token number">7</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token comment">// \u6709\u635F\u538B\u7F29\u914D\u7F6E\uFF0C\u6709\u635F\u538B\u7F29\u4E0B\u56FE\u7247\u8D28\u91CF\u53EF\u80FD\u4F1A\u53D8\u5DEE</span>
+      pngquant<span class="token operator">:</span> <span class="token punctuation">{</span>
+        quality<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token number">0.8</span><span class="token punctuation">,</span> <span class="token number">0.9</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token comment">// svg \u4F18\u5316</span>
+      svgo<span class="token operator">:</span> <span class="token punctuation">{</span>
+        plugins<span class="token operator">:</span> <span class="token punctuation">[</span>
+          <span class="token punctuation">{</span>
+            name<span class="token operator">:</span> <span class="token string">&#39;removeViewBox&#39;</span>
+          <span class="token punctuation">}</span><span class="token punctuation">,</span>
+          <span class="token punctuation">{</span>
+            name<span class="token operator">:</span> <span class="token string">&#39;removeEmptyAttrs&#39;</span><span class="token punctuation">,</span>
+            active<span class="token operator">:</span> <span class="token boolean">false</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">]</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+  <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+
+</code></pre><div class="line-numbers" aria-hidden="true"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br></div></div><p>\u63A5\u4E0B\u6765\u6211\u4EEC\u53EF\u4EE5\u5C1D\u8BD5\u6267\u884Cpnpm run build\u8FDB\u884C\u6253\u5305, \u5BF9\u6BD4\u80FD\u591F\u53D1\u73B0Vite \u63D2\u4EF6\u5DF2\u7ECF\u81EA\u52A8\u5E2E\u52A9\u6211\u4EEC\u8C03\u7528 imagemin \u8FDB\u884C\u9879\u76EE\u56FE\u7247\u7684\u538B\u7F29\uFF0C\u53EF\u4EE5\u770B\u5230\u538B\u7F29\u7684\u6548\u679C\u975E\u5E38\u660E\u663E\uFF0C\u5F3A\u70C8\u63A8\u8350\u5927\u5BB6\u5728\u9879\u76EE\u4E2D\u4F7F\u7528\u3002</p>`,5);function x(w,y){const a=p("ExternalLinkIcon");return t(),o(l,null,[u,n("p",null,[m,n("a",b,[k,c(a)]),d,_,g,h,v]),f],64)}var B=e(i,[["render",x],["__file","8.\u56FE\u7247\u538B\u7F29.html.vue"]]);export{B as default};

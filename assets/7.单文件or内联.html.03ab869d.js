@@ -1,0 +1,1 @@
+const e={key:"v-de1e8dc2",path:"/vite/4.%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90/7.%E5%8D%95%E6%96%87%E4%BB%B6or%E5%86%85%E8%81%94.html",title:"\u5355\u6587\u4EF6 or \u5185\u8054\uFF1F",lang:"zh-CN",frontmatter:{pageClass:"my-note"},excerpt:"",headers:[],git:{},filePathRelative:"vite/4.\u9759\u6001\u8D44\u6E90/7.\u5355\u6587\u4EF6or\u5185\u8054.md"};export{e as data};

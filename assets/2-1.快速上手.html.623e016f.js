@@ -1,0 +1,1 @@
+const t={key:"v-3cc92ad8",path:"/vite/6.Esbuild/2-1.%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B.html",title:"Esbuild \u529F\u80FD\u4F7F\u7528",lang:"zh-CN",frontmatter:{},excerpt:"",headers:[],git:{},filePathRelative:"vite/6.Esbuild/2-1.\u5FEB\u901F\u4E0A\u624B.md"};export{t as data};
